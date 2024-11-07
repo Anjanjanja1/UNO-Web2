@@ -29,7 +29,8 @@ document.getElementById("start-game").addEventListener("click", () => {
       document.getElementById("game-id").textContent = gameData.Id;
 
       // Karten der Spieler anzeigen
-      const playersCardsContainer = document.getElementById("players-cards");
+      const playersCardsContainer =
+        document.getElementById("players-cards");
       playersCardsContainer.innerHTML = ""; // Container leeren
 
       gameData.Players.forEach((player) => {
@@ -119,5 +120,7 @@ document.getElementById("start-game").addEventListener("click", () => {
       // Spiel-Info anzeigen
       document.getElementById("game-info").style.display = "block";
     })
-    .catch((error) => console.error("Fehler beim Starten des Spiels:", error));
+    .catch((error) =>
+      console.error("Fehler beim Starten des Spiels:", error)
+    );
 });
