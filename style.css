@@ -43,6 +43,11 @@ h1 {
   border-radius: 5px;
 }
 
+.player-cards-container .card:hover {
+  cursor: pointer;
+  transform: scale(1.5);
+}
+
 #top-card-section {
   margin-top: 20px;
   display: flex;
