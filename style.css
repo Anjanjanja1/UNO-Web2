@@ -36,6 +36,17 @@ h1 {
   justify-content: center;
 }
 
+#game-direction {
+  margin-left: auto;
+  margin-right: auto;
+  width: 30%;
+}
+
+.rotate-scale-up {
+  -webkit-animation: rotate-scale-up 0.7s 1s linear both;
+  animation: rotate-scale-up 0.7s linear both;
+}
+
 .card {
   width: 60px;
   margin: 5px;
@@ -60,4 +71,42 @@ h1 {
   gap: 10px;
   justify-content: center;
   margin-top: 20px;
+}
+
+
+
+/* ---------- keyframes for css animations */
+
+@-webkit-keyframes rotate-scale-up {
+  0% {
+    -webkit-transform: scale(1) rotateZ(0);
+    transform: scale(1) rotateZ(0);
+  }
+
+  50% {
+    -webkit-transform: scale(2) rotateZ(180deg);
+    transform: scale(2) rotateZ(180deg);
+  }
+
+  100% {
+    -webkit-transform: scale(1) rotateZ(360deg);
+    transform: scale(1) rotateZ(360deg);
+  }
+}
+
+@keyframes rotate-scale-up {
+  0% {
+    -webkit-transform: scale(1) rotateZ(0);
+    transform: scale(1) rotateZ(0);
+  }
+
+  50% {
+    -webkit-transform: scale(2) rotateZ(180deg);
+    transform: scale(2) rotateZ(180deg);
+  }
+
+  100% {
+    -webkit-transform: scale(1) rotateZ(360deg);
+    transform: scale(1) rotateZ(360deg);
+  }
 }

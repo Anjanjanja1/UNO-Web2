@@ -2,6 +2,8 @@ let gameId = null; // Speichert die Spiel-ID global
 let playerCardDecks = null;  // alle Player samt Cards
 let activePlayer = null;   // Spieler, der am Zug ist
 let selectedCard = null;   // Karte, die gespielt werden soll
+let gameDirection = "clockwise";  // Spielrichtung - default im Uhrzeigersinn
+
 
 
 // Starten eines neuen Spiels mit Spielernamen & globale Variablen initialisieren
@@ -55,6 +57,7 @@ function startGame(players) {
 
             displayPlayersCards(gameData.Players);
             displayTopCard(gameId);
+            displayGameDirection();
 
             document.getElementById('game-info').style.display = 'block';
         })
@@ -145,6 +148,48 @@ function getCardTextCode(text) {
             console.warn('Unbekannte Spezialkarte:', text);
             return text; // Fallback für unbekannte Texte
     }
+}
+
+
+// display game direction
+function displayGameDirection() {
+    let directionDiv = document.getElementById('game-direction');
+    let directionImg = document.createElement('img');
+    directionImg.src = "imgs/clockwise.png";
+    directionImg.alt = `${gameDirection}`;
+    directionImg.id = "game-direction-image";
+    directionImg.className = "img-fluid";
+    directionDiv.appendChild(directionImg);
+}
+
+// change direction of game: flip image
+// ToDo: 
+function changeDirection() {
+
+    let directionImg = document.getElementById('game-direction-image');
+
+    // if img is clockwise
+    if (gameDirection === "clockwise") {
+        // mirror img and change direction to counterclockwise
+        directionImg.src = "imgs/counterclockwise.png";
+        gameDirection = "counterclockwise";
+        directionImg.alt = `${gameDirection}`;
+        directionImg.classList.add("rotate-scale-up"); // rotate animation
+
+        // if img is counterclockwise
+    } else if (gameDirection === "counterclockwise") {
+        // mirror img and change direction to clockwise
+        directionImg.src = "imgs/clockwise.png";
+        gameDirection = "clockwise";
+        directionImg.alt = `${gameDirection}`;
+        directionImg.classList.add("rotate-scale-up"); //rotate animation
+    }
+
+    // remove animation class after animation
+    setTimeout(() => {
+        directionImg.classList.remove("rotate-scale-up");
+    }, 700);
+
 }
 
 
