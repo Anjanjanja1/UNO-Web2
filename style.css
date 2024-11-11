@@ -29,6 +29,14 @@ h1 {
   margin-top: 0;
 }
 
+.player-section.active {
+  margin-bottom: 20px;
+  border: 1px solid #f3e742;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fffbbe;
+}
+
 .player-cards-container {
   display: flex;
   flex-wrap: wrap;
