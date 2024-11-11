@@ -293,7 +293,7 @@ function playCard(event, wildColor = null) {
             // result: Player, Cards, Score
             // TODO: Reset or update UI after a successful turn
             // update active player cards
-            updateActivePlayerCards(activePlayer);  // update cards of player after turn
+            updatePlayerCardsAndScore(activePlayer);  // update cards of player after turn
             nextPlayer();  // change player after turn
         })
         .catch(error => console.error('Fehler beim Spielen einer Karte:', error));
