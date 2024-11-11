@@ -1,12 +1,17 @@
+
+// Global variables
+
+let globalResult = Object();
 let gameId = null; // Speichert die Spiel-ID global
-let playerCardDecks = null;  // alle Player samt Cards
-let activePlayer = null;   // Spieler, der am Zug ist
-let selectedCard = null;   // Karte, die gespielt werden soll
 let gameDirection = "clockwise";  // Spielrichtung - default im Uhrzeigersinn
+let players = [];  // Spielernamen
+let playerCardDecks = null;  // alle Player samt Cards
+let activePlayer = null;   // Name des Spielers, der am Zug ist
+let selectedCard = null;   // Karte, die gespielt werden soll
 
 
 
-// Starten eines neuen Spiels mit Spielernamen & globale Variablen initialisieren
+// Starten eines neuen Spiel mit Spielernamen & initialisiert globale Variablen
 function submitPlayerNames() {
     const player1 = document.getElementById('player1').value;
     const player2 = document.getElementById('player2').value;
@@ -14,7 +19,7 @@ function submitPlayerNames() {
     const player4 = document.getElementById('player4').value;
 
     // Spieler-Namen in einem Array speichern
-    const players = [player1, player2, player3, player4];
+    players = [player1, player2, player3, player4];
 
     // Prüfen, ob alle Namen eingegeben wurden
     if (players.some(name => name.trim() === "")) {
@@ -29,6 +34,7 @@ function submitPlayerNames() {
     // Startet das Spiel mit den eingegebenen Spielernamen
     startGame(players);
 }
+
 
 // Start new game: set gameId, card setup, activePlayer
 function startGame(players) {
@@ -52,7 +58,9 @@ function startGame(players) {
 
             gameId = gameData.Id;
             playerCardDecks = gameData.Players;
-            activePlayer = gameData.NextPlayer;
+            activePlayer = gameData.NextPlayer;  // name of player who starts
+            console.log(activePlayer);  // Check the value of activePlayer
+            // setPlayerCardsToActive();
             document.getElementById('game-id').textContent = gameId;
 
             displayPlayersCards(gameData.Players);
@@ -64,7 +72,8 @@ function startGame(players) {
         .catch(error => console.error('Fehler beim Starten des Spiels:', error));
 }
 
-// display cards from each player
+
+// display each players cards
 function displayPlayersCards(players) {
     const playersCardsContainer = document.getElementById('players-cards');
     playersCardsContainer.innerHTML = '';
@@ -162,8 +171,8 @@ function displayGameDirection() {
     directionDiv.appendChild(directionImg);
 }
 
-// change direction of game: flip image
-// ToDo: 
+
+// change direction of game and display it (flip image)
 function changeDirection() {
 
     let directionImg = document.getElementById('game-direction-image');
@@ -193,32 +202,69 @@ function changeDirection() {
 }
 
 
-// make active player cards clickable (set player id class and click listener)
-function setActivePlayer() {
-
-    removeActivePlayer();
-
-    let activePlayerSection = document.getElementById(activePlayer);
-
-    // set class to 'active-player' and add click listener to each active player card
-    activePlayerSection.querySelector(`.player-cards-container`).forEach(card => {
-        card.className = 'active-player';
-        card.addEventListener('click', playCard);
-    });
-}
-
-
-// remove 'active-player' class and click listener again to set new one
+// remove 'active-card' class and click listener again to set new one
 function removeActivePlayer() {
 
-    document.getElementsByClassName('active-player').removeEventListener('click', playCard); // deactivate click
-    document.getElementsByClassName('active-player').className = 'card';  //change class name back to 'card'
+    const activeCards = document.getElementsByClassName('active-card');
+
+    Array.from(activeCards).forEach(card => {
+        card.removeEventListener('click', playCard); // deactivate click
+        card.className = 'card';  //change class name back to 'card'
+    })
+
+    // de-highlight the background of players deck
+    const currentActiveSection = document.querySelector('.active');
+    if (currentActiveSection) {
+        currentActiveSection.classList.remove('active');
+    }
 }
 
 
-// set selected card and add cardId
+function setPlayerCardsToActive() {
+
+    const activePlayerSection = document.getElementById(activePlayer); // card container of active player
+    const playerCards = Array.from(activePlayerSection.getElementsByClassName('player-cards-container')[0].getElementsByTagName('img')); // all cards from active player
+
+    // change card class to 'active-card' and add click listener to each active player card
+    playerCards.forEach(card => {
+        card.className = 'active-card';
+        card.addEventListener('click', playCard);
+    });
+
+    // highlight the background of new active players deck
+    activePlayerSection.classList.add('active');
+}
+
+
+// TODO:
+// make active player cards clickable (set player id class and click listener)
+// highlight active player section
+// update variable activePlayer
+function nextPlayer() {
+
+    removeActivePlayer();  // first remove active-card class from current active player
+
+    let direction = (gameDirection === "counterclockwise") ? -1 : 1;  // clockwise = 1, counterclockwise = -1
+    let activePlayerIndex = players.findIndex(player => player.name === activePlayer);  // find index of active player in player array
+
+    // update active player (considering direction)
+    if (activePlayerIndex !== -1) {
+        let nextIndex = (activePlayerIndex + direction + players.length) % players.length;
+        activePlayer = players[nextIndex].name;  //set new active player name
+    } else {
+        console.error("player not found in array players!");
+    }
+
+    setPlayerCardsToActive();  // set new active player cards to active
+
+}
+
+
+
+// ToDo: play card - set selected card and add cardId
 function playCard(event, wildColor = null) {
-    selectedCard = event.target.id;
+    console.log("Karte wurde geklickt!")
+    selectedCard = event.target.id;  // card selected by active player
     let value = selectedCard.slice(1);  // removes first character
     let color = selectedCard.charAt(0);  // char on index 0
 
@@ -245,19 +291,40 @@ function playCard(event, wildColor = null) {
         .then(result => {
             console.log("Karte wurde gespielt!");
             // result: Player, Cards, Score
-            // TODO: Reset or update UI after a successful play
-            activePlayer = result.NextPlayer;  // update active player
-            // score = 
-            // updated player card deck = 
-            setActivePlayer();
+            // TODO: Reset or update UI after a successful turn
+            // update active player cards
+            updateActivePlayerCards(activePlayer);  // update cards of player after turn
+            nextPlayer();  // change player after turn
         })
         .catch(error => console.error('Fehler beim Spielen einer Karte:', error));
 }
 
 
 
+// update cards and score of active player after turn
+async function updatePlayerCardsAndScore(playerName) {
+    // let name = globalResult.Players[playerId].Player;
+    let URL = `https://nowaunoweb.azurewebsites.net/api/Game/GetCards/${gameID}?playerName=${playerName}`;
+
+    let response = await fetch(URL, {
+        method: "GET",
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+        },
+    });
+
+    let apiResponseToUpdatePlayerCards = await response.json();
+
+    if (response.ok) {
+        globalResult.Players[playerName].Cards = apiResponseToUpdatePlayerCards.Cards;  //update cards
+        globalResult.Players[playerName].Score = apiResponseToUpdatePlayerCards.Score;  // update score
+        alert("HTTP-Error: " + response.status);
+    }
+}
+
+
 // Funktion zum Anzeigen der obersten Karte (Top Card)
-function displayTopCard(gameId) {
+async function displayTopCard(gameId) {
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/TopCard/${gameId}`)
         .then(response => {
             if (!response.ok) {
@@ -282,6 +349,7 @@ function displayTopCard(gameId) {
         })
         .catch(error => console.error('Fehler beim Abrufen der Top Card:', error));
 }
+
 
 // Funktion zum Ziehen einer Karte
 function drawCard(gameId) {
