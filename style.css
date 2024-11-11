@@ -29,6 +29,14 @@ h1 {
   margin-top: 0;
 }
 
+.player-section.active {
+  margin-bottom: 20px;
+  border: 1px solid #f3e742;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fffbbe;
+}
+
 .player-cards-container {
   display: flex;
   flex-wrap: wrap;
@@ -36,11 +44,27 @@ h1 {
   justify-content: center;
 }
 
+#game-direction {
+  margin-left: auto;
+  margin-right: auto;
+  width: 30%;
+}
+
+.rotate-scale-up {
+  -webkit-animation: rotate-scale-up 0.7s 1s linear both;
+  animation: rotate-scale-up 0.7s linear both;
+}
+
 .card {
   width: 60px;
   margin: 5px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
+}
+
+.player-cards-container .card:hover {
+  cursor: pointer;
+  transform: scale(1.5);
 }
 
 #top-card-section {
@@ -55,4 +79,42 @@ h1 {
   gap: 10px;
   justify-content: center;
   margin-top: 20px;
+}
+
+
+
+/* ---------- keyframes for css animations */
+
+@-webkit-keyframes rotate-scale-up {
+  0% {
+    -webkit-transform: scale(1) rotateZ(0);
+    transform: scale(1) rotateZ(0);
+  }
+
+  50% {
+    -webkit-transform: scale(2) rotateZ(180deg);
+    transform: scale(2) rotateZ(180deg);
+  }
+
+  100% {
+    -webkit-transform: scale(1) rotateZ(360deg);
+    transform: scale(1) rotateZ(360deg);
+  }
+}
+
+@keyframes rotate-scale-up {
+  0% {
+    -webkit-transform: scale(1) rotateZ(0);
+    transform: scale(1) rotateZ(0);
+  }
+
+  50% {
+    -webkit-transform: scale(2) rotateZ(180deg);
+    transform: scale(2) rotateZ(180deg);
+  }
+
+  100% {
+    -webkit-transform: scale(1) rotateZ(360deg);
+    transform: scale(1) rotateZ(360deg);
+  }
 }
