@@ -8,23 +8,64 @@ let players = [];  // Spielernamen
 let playerCardDecks = null;  // alle Player samt Cards
 let activePlayer = null;   // Name des Spielers, der am Zug ist
 let selectedCard = null;   // Karte, die gespielt werden soll
+let submitting = false;  //To control error messages; tracks if a form submission attempt is being made
 
+//Check if player names are unique
+function checkUniqueNames() {
+  const playerInputs = [
+    document.getElementById('player1').value.trim(),
+    document.getElementById('player2').value.trim(),
+    document.getElementById('player3').value.trim(),
+    document.getElementById('player4').value.trim()
+  ];
+  //Filter out empty fields
+  const filledInputs = playerInputs.filter(name => name !== '');
+  
+  //Set stores only unique values -> automatically ignores/removes duplicates
+  const uniqueNames = new Set(filledInputs);
 
+  //If the number of unique names is less than the number of filled inputs, there are duplicates
+  if (uniqueNames.size !== filledInputs.length) {
+    document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
+  }
+  //Clear any previous error message
+  else {
+    document.getElementById('message').textContent = ''; 
+  }
+}
 
 // Starten eines neuen Spiel mit Spielernamen & initialisiert globale Variablen
 function submitPlayerNames() {
-    const player1 = document.getElementById('player1').value;
-    const player2 = document.getElementById('player2').value;
-    const player3 = document.getElementById('player3').value;
-    const player4 = document.getElementById('player4').value;
+    submitting = true; //Prevents multiple submissions & indicated that a form submission is being attempted
+
+    const player1 = document.getElementById('player1').value.trim();
+    const player2 = document.getElementById('player2').value.trim();
+    const player3 = document.getElementById('player3').value.trim();
+    const player4 = document.getElementById('player4').value.trim();
 
     // Spieler-Namen in einem Array speichern
     players = [player1, player2, player3, player4];
 
-    // Prüfen, ob alle Namen eingegeben wurden
-    if (players.some(name => name.trim() === "")) {
-        alert("Bitte Namen für alle Spieler eingeben.");
-        return;
+    //Prepares the form for new validation
+    document.getElementById('message').textContent = '';
+
+    //Check if there is any empty fields
+    if (players.some(name => name === '')) {
+      document.getElementById('message').textContent = 'Bitte gib für alle Spieler einen Namen ein.';
+      submitting = false;  //Reset the flag because the form is not fully submitted
+      return;
+    }
+
+    //Double check the uniqueness
+    const uniqueNames = new Set(players);
+
+    if (uniqueNames.size !== players.length) {
+      document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
+      submitting = false;
+      return;
+    }
+    else {
+      document.getElementById('message').textContent = '';
     }
 
     // Modal schließen
@@ -33,8 +74,41 @@ function submitPlayerNames() {
 
     // Startet das Spiel mit den eingegebenen Spielernamen
     startGame(players);
+    submitting = false; //Reset the flag because the form is fully submitted
 }
 
+//TODO Reset the game and clear player inputs
+//resetGame() is called when the "Neues Spiel" button is clicked
+function resetGame() {
+  //Clear each player input field
+  document.getElementById('player1').value = '';
+  document.getElementById('player2').value = '';
+  document.getElementById('player3').value = '';
+  document.getElementById('player4').value = '';
+
+  document.getElementById('message').textContent = '';
+
+  players = [];
+  submitting = false;
+
+  gameId = null;
+  playerCardDecks = null;
+  activePlayer = null;
+  selectedCard = null;
+
+  document.getElementById('change-players-btn').style.display = 'block'; //Show the button to change players
+}
+
+//Listener to check for all input changes in real time
+document.getElementById('playerForm').addEventListener('input', checkUniqueNames);
+
+//Listener for Enter key in the form
+document.getElementById('playerForm').addEventListener('keypress', function(event){
+  if(event.key === 'Enter'){
+    event.preventDefault(); //Prevent the form from submitting
+    submitPlayerNames(); //Manually handle the form submission with validations
+  }
+});
 
 // Start new game: set gameId, card setup, activePlayer
 function startGame(players) {
