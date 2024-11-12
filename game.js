@@ -36,41 +36,43 @@ function checkUniqueNames() {
 
 // Starten eines neuen Spiel mit Spielernamen & initialisiert globale Variablen
 function submitPlayerNames() {
-    submitting = true; //Prevents multiple submissions & indicated that a form submission is being attempted
+    // submitting = true; //Prevents multiple submissions & indicated that a form submission is being attempted
 
-    const player1 = document.getElementById('player1').value.trim();
-    const player2 = document.getElementById('player2').value.trim();
-    const player3 = document.getElementById('player3').value.trim();
-    const player4 = document.getElementById('player4').value.trim();
+    // const player1 = document.getElementById('player1').value.trim();
+    // const player2 = document.getElementById('player2').value.trim();
+    // const player3 = document.getElementById('player3').value.trim();
+    // const player4 = document.getElementById('player4').value.trim();
 
-    // Spieler-Namen in einem Array speichern
-    players = [player1, player2, player3, player4];
+    // // Spieler-Namen in einem Array speichern
+    // players = [player1, player2, player3, player4];
 
-    //Prepares the form for new validation
-    document.getElementById('message').textContent = '';
+    players = ['Melissa', 'Ajla', 'Sophia', 'Anja']; //THIS IS HARD CODED FOR TESTING-REMOVE IT WHEN NOT NEEDED
 
-    //Check if there is any empty fields
-    if (players.some(name => name === '')) {
-      document.getElementById('message').textContent = 'Bitte gib für alle Spieler einen Namen ein.';
-      submitting = false;  //Reset the flag because the form is not fully submitted
-      return;
-    }
+    // //Prepares the form for new validation
+    // document.getElementById('message').textContent = '';
 
-    //Double check the uniqueness
-    const uniqueNames = new Set(players);
+    // //Check if there is any empty fields
+    // if (players.some(name => name === '')) {
+    //   document.getElementById('message').textContent = 'Bitte gib für alle Spieler einen Namen ein.';
+    //   submitting = false;  //Reset the flag because the form is not fully submitted
+    //   return;
+    // }
 
-    if (uniqueNames.size !== players.length) {
-      document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
-      submitting = false;
-      return;
-    }
-    else {
-      document.getElementById('message').textContent = '';
-    }
+    // //Double check the uniqueness
+    // const uniqueNames = new Set(players);
 
-    // Modal schließen
-    const playerModal = bootstrap.Modal.getInstance(document.getElementById('playerModal'));
-    playerModal.hide();
+    // if (uniqueNames.size !== players.length) {
+    //   document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
+    //   submitting = false;
+    //   return;
+    // }
+    // else {
+    //   document.getElementById('message').textContent = '';
+    // }
+
+    // // Modal schließen
+    // const playerModal = bootstrap.Modal.getInstance(document.getElementById('playerModal'));
+    // playerModal.hide();
 
     // Startet das Spiel mit den eingegebenen Spielernamen
     startGame(players);
@@ -99,16 +101,16 @@ function resetGame() {
   document.getElementById('change-players-btn').style.display = 'block'; //Show the button to change players
 }
 
-//Listener to check for all input changes in real time
-document.getElementById('playerForm').addEventListener('input', checkUniqueNames);
+// //Listener to check for all input changes in real time
+// document.getElementById('playerForm').addEventListener('input', checkUniqueNames);
 
-//Listener for Enter key in the form
-document.getElementById('playerForm').addEventListener('keypress', function(event){
-  if(event.key === 'Enter'){
-    event.preventDefault(); //Prevent the form from submitting
-    submitPlayerNames(); //Manually handle the form submission with validations
-  }
-});
+// //Listener for Enter key in the form
+// document.getElementById('playerForm').addEventListener('keypress', function(event){
+//   if(event.key === 'Enter'){
+//     event.preventDefault(); //Prevent the form from submitting
+//     submitPlayerNames(); //Manually handle the form submission with validations
+//   }
+// });
 
 // Start new game: set gameId, card setup, activePlayer
 function startGame(players) {
@@ -146,6 +148,17 @@ function startGame(players) {
         .catch(error => console.error('Fehler beim Starten des Spiels:', error));
 }
 
+function getColorName(colorCode) {
+    switch (colorCode) {
+        case 'r': return 'Red';
+        case 'b': return 'Blue';
+        case 'y': return 'Yellow';
+        case 'g': return 'Green';
+        case 'black': return 'Black';
+        default: return colorCode;  // fallback if color is unrecognized
+    }
+}
+
 
 // display each players cards
 function displayPlayersCards(players) {
@@ -169,7 +182,7 @@ function displayPlayersCards(players) {
             const cardImg = document.createElement('img');
             cardImg.classList.add('card');
 
-            let colorCode = card.Color.charAt(0).toLowerCase();
+            let colorCode = getColorName(card.Color.charAt(0).toLowerCase());
             let textCode = card.Text.toLowerCase();
 
             switch (textCode) {
@@ -183,24 +196,26 @@ function displayPlayersCards(players) {
                 case 'seven': textCode = '7'; break;
                 case 'eight': textCode = '8'; break;
                 case 'nine': textCode = '9'; break;
-                case 'draw2': textCode = 'd2'; break;
-                case 'reverse': textCode = 'r'; break;
-                case 'skip': textCode = 's'; break;
-                case 'draw4':
-                    colorCode = 'wd';
-                    textCode = '4';
-                    break;
+                case 'draw2': textCode = '10'; break;
+                case 'reverse': textCode = '12'; break;
+                case 'skip': textCode = '11'; break;
+                case 'draw4': textCode = '13'; break;
+                //TODO CHANGE COLOR CARDS NOT SHOWING
                 case 'changecolor':
-                    colorCode = '';
-                    textCode = 'wild';
+                    textCode = card.Color.charAt(0).toLowerCase();
+                    colorCode = 'wild_';
+                    console.log(`Changecolor: ${textCode}, ${colorCode}`)
                     break;
                 default:
                     console.warn('Unbekannte Spezialkarte:', textCode);
             }
 
+
             cardImg.id = `${colorCode}${textCode}`
-            cardImg.src = `https://nowaunoweb.azurewebsites.net/Content/Cards/${colorCode}${textCode}.png`;
+            cardImg.src = `imgs/Cards/${colorCode}${textCode}.png`;
             cardImg.alt = `${card.Color} ${card.Text}`;
+            playerCardsList.appendChild(cardImg);
+
             playerCardsList.appendChild(cardImg);
         });
 
@@ -222,11 +237,12 @@ function getCardTextCode(text) {
         case 'seven': return '7';
         case 'eight': return '8';
         case 'nine': return '9';
-        case 'draw2': return 'd2';
-        case 'reverse': return 'r';
-        case 'skip': return 's';
-        case 'draw4': return '4';
-        case 'changecolor': return 'wild';
+        case 'draw2': return '10';
+        case 'reverse': return '12';
+        case 'skip': return '11';
+        case 'draw4': return '13';
+        //TODO CHANGE COLOR CARDS NOT SHOWING
+        case 'changecolor': return wild;
         default:
             console.warn('Unbekannte Spezialkarte:', text);
             return text; // Fallback für unbekannte Texte
@@ -413,10 +429,10 @@ async function displayTopCard(gameId) {
             const topCardImg = document.createElement('img');
             topCardImg.classList.add('card');
 
-            let colorCode = topCard.Color.charAt(0).toLowerCase();
+            let colorCode = getColorName(topCard.Color.charAt(0).toLowerCase());
             let textCode = getCardTextCode(topCard.Text.toLowerCase());
 
-            topCardImg.src = `https://nowaunoweb.azurewebsites.net/Content/Cards/${colorCode}${textCode}.png`;
+            topCardImg.src = `imgs/Cards/${colorCode}${textCode}.png`;
             topCardImg.alt = `${topCard.Color} ${topCard.Text}`;
 
             topCardContainer.appendChild(topCardImg);
