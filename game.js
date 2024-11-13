@@ -142,6 +142,7 @@ function startGame(players) {
             displayPlayersCards(gameData.Players);
             displayTopCard(gameId);
             displayGameDirection();
+            displayCurrentPlayer();
 
             document.getElementById('game-info').style.display = 'block';
         })
@@ -174,6 +175,9 @@ function displayPlayersCards(players) {
         const playerCardsList = document.createElement('div');
         playerCardsList.classList.add('player-cards-container');
 
+
+        if (player.Player === activePlayer) {
+        
         player.Cards.forEach(card => {
             if (card.Color.toLowerCase() === 'black' && (card.Text.toLowerCase() === 'changecolor' || card.Text.toLowerCase() === 'wild')) {
                 return;
@@ -218,6 +222,19 @@ function displayPlayersCards(players) {
 
             playerCardsList.appendChild(cardImg);
         });
+    }
+        else {
+
+      // Zeige umgedrehte Karten für nicht-aktive Spieler
+      for (let i = 0; i < player.Cards.length; i++) {
+        const backCardImg = document.createElement('img');
+        backCardImg.classList.add('card', 'back-card');
+        backCardImg.src = 'imgs/Cards/back0.png'; // Pfad zur Rückseite der UNO-Karte
+        backCardImg.alt = 'Umgedrehte Karte';
+        playerCardsList.appendChild(backCardImg);
+    }
+
+        }
 
         playerSection.appendChild(playerCardsList);
         playersCardsContainer.appendChild(playerSection);
@@ -346,7 +363,7 @@ function nextPlayer() {
     }
 
     setPlayerCardsToActive();  // set new active player cards to active
-
+    displayCurrentPlayer();
 }
 
 
@@ -387,6 +404,7 @@ function playCard(event, wildColor = null) {
             nextPlayer();  // change player after turn
         })
         .catch(error => console.error('Fehler beim Spielen einer Karte:', error));
+        displayCurrentPlayer();
 }
 
 
@@ -443,6 +461,9 @@ async function displayTopCard(gameId) {
 
 // Funktion zum Ziehen einer Karte
 function drawCard(gameId) {
+        //console.log(NextPlayer.name);
+        console.log(activePlayer);
+
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/DrawCard/${gameId}`, {
         method: 'PUT',
         headers: {
@@ -459,6 +480,7 @@ function drawCard(gameId) {
             console.log("Gezogene Karte:", newCard);
         })
         .catch(error => console.error('Fehler beim Ziehen einer Karte:', error));
+
 }
 
 
@@ -475,4 +497,23 @@ function getPlayerHand(gameId, playerName) {
             console.log(`Kartenhand von ${playerName}:`, hand);
         })
         .catch(error => console.error('Fehler beim Abrufen der Kartenhand:', error));
+}
+
+
+
+function displayCurrentPlayer() {
+
+    const activePlayerDiv = document.getElementById('active-player');
+    activePlayerDiv.textContent = activePlayer;
+    players.forEach(playerName => {
+        const playerDiv = document.getElementById(playerName); 
+
+        if (playerName === activePlayer) {
+            playerDiv.style.opacity = 10;
+            playerDiv.classList.add('highlight'); 
+        } else {
+            playerDiv.style.opacity = 0.5;
+            playerDiv.classList.remove('highlight'); 
+        }
+    });
 }
