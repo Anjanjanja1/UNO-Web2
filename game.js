@@ -146,7 +146,7 @@ function startGame() {
             displayPlayersCards();
             displayTopCard();
             displayGameDirection();
-            playCard();
+            
 
 
         })
@@ -165,6 +165,40 @@ function getColorName(colorCode) {
     }
 }
 
+function getCardImagePath(color, text) {
+    let colorCode;
+    let textCode;
+
+    if(text.toLowerCase() === 'changecolor') {
+        //handle change color cards specifically
+        colorCode = 'wild_';
+        textCode = color.charAt(0).toLowerCase(); // 'b', 'r', 'y', 'g'
+    } 
+    //for all other card types -> standard colors and numbers
+    else {
+        colorCode = getColorName(color.charAt(0).toLowerCase());
+        switch (text.toLowerCase()) {
+            case 'zero': textCode = '0'; break;
+            case 'one': textCode = '1'; break;
+            case 'two': textCode = '2'; break;
+            case 'three': textCode = '3'; break;
+            case 'four': textCode = '4'; break;
+            case 'five': textCode = '5'; break;
+            case 'six': textCode = '6'; break;
+            case 'seven': textCode = '7'; break;
+            case 'eight': textCode = '8'; break;
+            case 'nine': textCode = '9'; break;
+            case 'draw2': textCode = '10'; break;
+            case 'reverse': textCode = '12'; break;
+            case 'skip': textCode = '11'; break;
+            case 'draw4': textCode = '13'; break;
+            default:
+                console.warn('Unknown Card:', text);
+                textCode = text.toLowerCase(); //fallback for unknown card types
+        }
+    }
+    return `imgs/Cards/${colorCode}${textCode}.png`;
+}
 
 // display each players cards
 function displayPlayersCards() {
@@ -198,37 +232,13 @@ function displayPlayersCards() {
                 activeCardImg.classList.add('active-card');  // card is active
                 activeCardImg.addEventListener('click', playCard);  // card is clickable
 
-                // set card color and text 
-                let colorCode = getColorName(card.Color.charAt(0).toLowerCase());
-                let textCode = card.Text.toLowerCase();
-
-                switch (textCode) {
-                    case 'zero': textCode = '0'; break;
-                    case 'one': textCode = '1'; break;
-                    case 'two': textCode = '2'; break;
-                    case 'three': textCode = '3'; break;
-                    case 'four': textCode = '4'; break;
-                    case 'five': textCode = '5'; break;
-                    case 'six': textCode = '6'; break;
-                    case 'seven': textCode = '7'; break;
-                    case 'eight': textCode = '8'; break;
-                    case 'nine': textCode = '9'; break;
-                    case 'draw2': textCode = '10'; break;
-                    case 'reverse': textCode = '12'; break;
-                    case 'skip': textCode = '11'; break;
-                    case 'draw4': textCode = '13'; break;
-                    case 'changecolor':
-                        textCode = card.Color.charAt(0).toLowerCase();
-                        colorCode = 'wild_';
-                        console.log(`Changecolor: ${textCode}, ${colorCode}`)
-                        break;
-                    default:
-                        console.warn('Unknown Card:', textCode);
-                }
-
-                activeCardImg.id = `${colorCode}${textCode}`
-                activeCardImg.src = `imgs/Cards/${colorCode}${textCode}.png`;
+                activeCardImg.src = getCardImagePath(card.Color, card.Text);
                 activeCardImg.alt = `${card.Color} ${card.Text}`;
+                
+                //set unique ID for the card 
+                const colorCode = card.Color.charAt(0).toLowerCase(); // 'r', 'b', 'y', 'g'
+                const textCode = card.Text.toLowerCase();
+                activeCardImg.id = `${colorCode}${textCode}`;
 
                 playerCardsList.appendChild(activeCardImg);
 
@@ -255,34 +265,6 @@ function displayPlayersCards() {
         playerSection.appendChild(playerCardsList);
         allPlayersContainer.appendChild(playerSection);
     });
-}
-
-
-
-// ToDo: ------ DO WE NEED THIS????? ----------
-// Hilfsfunktion zum Konvertieren des Kartentextes in Code
-function getCardTextCode(text) {
-    switch (text) {
-        case 'zero': return '0';
-        case 'one': return '1';
-        case 'two': return '2';
-        case 'three': return '3';
-        case 'four': return '4';
-        case 'five': return '5';
-        case 'six': return '6';
-        case 'seven': return '7';
-        case 'eight': return '8';
-        case 'nine': return '9';
-        case 'draw2': return '10';
-        case 'reverse': return '12';
-        case 'skip': return '11';
-        case 'draw4': return '13';
-        //TODO CHANGE COLOR CARDS NOT SHOWING
-        case 'changecolor': return wild;
-        default:
-            console.warn('Unbekannte Spezialkarte:', text);
-            return text; // Fallback für unbekannte Texte
-    }
 }
 
 
@@ -347,9 +329,36 @@ function nextPlayer() {
 // play selected card
 async function playCard(event, wildColor = null) {
     console.log("Karte wurde geklickt!")
+    console.log(event);
+
     selectedCard = event.target.id;  // card selected by active player
+    console.log(`Selected Card ID: ${selectedCard}`);
     let value = selectedCard.slice(1);  // removes first character
     let color = selectedCard.charAt(0);  // char on index 0
+
+    //TODO if anyone has a better idea to convert the card value to the API value, please let me know :)
+    switch (value) {
+        case 'zero': value = '0'; break;
+        case 'one': value = '1'; break;
+        case 'two': value = '2'; break;
+        case 'three': value = '3'; break;
+        case 'four': value = '4'; break;
+        case 'five': value = '5'; break;
+        case 'six': value = '6'; break;
+        case 'seven': value = '7'; break;
+        case 'eight': value = '8'; break;
+        case 'nine': value = '9'; break;
+        case 'draw2': value = '10'; break;
+        case 'reverse': value = '12'; break;
+        case 'skip': value = '11'; break;
+        case 'draw4': value = '13'; break;
+        case 'wild_': value = 'changecolor'; break;
+        default:
+            console.warn('Unknown card value:', value);
+    }
+
+    console.log(`Value: ${value}`);
+    console.log(`Color: ${color}`);
 
     // ToDo: Add CSS Animation
     animateCard(event.target);
@@ -376,7 +385,7 @@ async function playCard(event, wildColor = null) {
         const result = await response.json();
         console.log("Karte wurde gespielt!");
         // update active player cards
-        updatePlayerCardsAndScore(currentPlayer);  // update cards of player after turn
+        await updatePlayerCardsAndScore(currentPlayer);  // update cards of player after turn
         nextPlayer();  // change player after turn
         displayPlayersCards();
 
@@ -402,7 +411,7 @@ function animateCard(cardElement) {
 // update cards and score of active player after turn
 async function updatePlayerCardsAndScore(playerName) {
 
-    let URL = `https://nowaunoweb.azurewebsites.net/api/Game/GetCards/${gameID}?playerName=${playerName}`;
+    let URL = `https://nowaunoweb.azurewebsites.net/api/Game/GetCards/${gameId}?playerName=${playerName}`;
 
     let response = await fetch(URL, {
         method: "GET",
@@ -437,10 +446,7 @@ async function displayTopCard() {
             const topCardImg = document.createElement('img');
             topCardImg.classList.add('active-card');
 
-            let colorCode = getColorName(topCard.Color.charAt(0).toLowerCase());
-            let textCode = getCardTextCode(topCard.Text.toLowerCase());
-
-            topCardImg.src = `imgs/Cards/${colorCode}${textCode}.png`;
+            topCardImg.src = getCardImagePath(topCard.Color, topCard.Text);
             topCardImg.alt = `${topCard.Color} ${topCard.Text}`;
 
             topCardContainer.appendChild(topCardImg);
