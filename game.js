@@ -148,6 +148,7 @@ function startGame() {
             displayGameDirection();
             playCard();
 
+
         })
         .catch(error => console.error('Fehler beim Starten des Spiels:', error));
 }
@@ -232,7 +233,6 @@ function displayPlayersCards() {
                 playerCardsList.appendChild(activeCardImg);
 
             });
-
         }
         else {
             // hide cards of inactive player
@@ -366,6 +366,7 @@ async function playCard(event, wildColor = null) {
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
             }
+
         });
 
         if (!response.ok) {
@@ -384,6 +385,7 @@ async function playCard(event, wildColor = null) {
         console.error('Fehler beim Spielen einer Karte:', error);
         alert('Fehler beim Spielen der Karte!');
     }
+
 }
 
 // let discarded card disapear
@@ -448,6 +450,7 @@ async function displayTopCard() {
 
 
 // Funktion zum Ziehen einer Karte
+
 function drawCard() {
 
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/DrawCard/${gameId}`, {
@@ -466,6 +469,7 @@ function drawCard() {
             console.log("Gezogene Karte:", newCard);
         })
         .catch(error => console.error('Fehler beim Ziehen einer Karte:', error));
+
 }
 
 
@@ -483,4 +487,3 @@ function getPlayerHand(gameId, playerName) {
         })
         .catch(error => console.error('Fehler beim Abrufen der Kartenhand:', error));
 }
-
