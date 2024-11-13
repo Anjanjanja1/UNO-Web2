@@ -1,37 +1,36 @@
 
 // Global variables
 
-let globalResult = Object();
 let gameId = null; // Speichert die Spiel-ID global
 let gameDirection = "clockwise";  // Spielrichtung - default im Uhrzeigersinn
-let players = [];  // Spielernamen
-let playerCardDecks = null;  // alle Player samt Cards
-let activePlayer = null;   // Name des Spielers, der am Zug ist
+let playerNames = [];  // Spielernamen
+let globalResult = Object();  // Players: [Player{ Cards{}, Score}]
+let currentPlayer = null;   // Name des Spielers, der am Zug ist
 let selectedCard = null;   // Karte, die gespielt werden soll
 let submitting = false;  //To control error messages; tracks if a form submission attempt is being made
 
 //Check if player names are unique
 function checkUniqueNames() {
-  const playerInputs = [
-    document.getElementById('player1').value.trim(),
-    document.getElementById('player2').value.trim(),
-    document.getElementById('player3').value.trim(),
-    document.getElementById('player4').value.trim()
-  ];
-  //Filter out empty fields
-  const filledInputs = playerInputs.filter(name => name !== '');
-  
-  //Set stores only unique values -> automatically ignores/removes duplicates
-  const uniqueNames = new Set(filledInputs);
+    const playerInputs = [
+        document.getElementById('player1').value.trim(),
+        document.getElementById('player2').value.trim(),
+        document.getElementById('player3').value.trim(),
+        document.getElementById('player4').value.trim()
+    ];
+    //Filter out empty fields
+    const filledInputs = playerInputs.filter(name => name !== '');
 
-  //If the number of unique names is less than the number of filled inputs, there are duplicates
-  if (uniqueNames.size !== filledInputs.length) {
-    document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
-  }
-  //Clear any previous error message
-  else {
-    document.getElementById('message').textContent = ''; 
-  }
+    //Set stores only unique values -> automatically ignores/removes duplicates
+    const uniqueNames = new Set(filledInputs);
+
+    //If the number of unique names is less than the number of filled inputs, there are duplicates
+    if (uniqueNames.size !== filledInputs.length) {
+        document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
+    }
+    //Clear any previous error message
+    else {
+        document.getElementById('message').textContent = '';
+    }
 }
 
 // Starten eines neuen Spiel mit Spielernamen & initialisiert globale Variablen
@@ -44,15 +43,15 @@ function submitPlayerNames() {
     // const player4 = document.getElementById('player4').value.trim();
 
     // // Spieler-Namen in einem Array speichern
-    // players = [player1, player2, player3, player4];
+    // playerNames = [player1, player2, player3, player4];
 
-    players = ['Melissa', 'Ajla', 'Sophia', 'Anja']; //THIS IS HARD CODED FOR TESTING-REMOVE IT WHEN NOT NEEDED
+    playerNames = ['Melissa', 'Ajla', 'Sophia', 'Anja']; //THIS IS HARD CODED FOR TESTING-REMOVE IT WHEN NOT NEEDED
 
     // //Prepares the form for new validation
     // document.getElementById('message').textContent = '';
 
     // //Check if there is any empty fields
-    // if (players.some(name => name === '')) {
+    // if (playerNames.some(name => name === '')) {
     //   document.getElementById('message').textContent = 'Bitte gib für alle Spieler einen Namen ein.';
     //   submitting = false;  //Reset the flag because the form is not fully submitted
     //   return;
@@ -61,7 +60,7 @@ function submitPlayerNames() {
     // //Double check the uniqueness
     // const uniqueNames = new Set(players);
 
-    // if (uniqueNames.size !== players.length) {
+    // if (uniqueNames.size !== playerNames.length) {
     //   document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
     //   submitting = false;
     //   return;
@@ -75,30 +74,29 @@ function submitPlayerNames() {
     // playerModal.hide();
 
     // Startet das Spiel mit den eingegebenen Spielernamen
-    startGame(players);
+    startGame();
     submitting = false; //Reset the flag because the form is fully submitted
 }
 
-//TODO Reset the game and clear player inputs
-//resetGame() is called when the "Neues Spiel" button is clicked
+// Reset the game and clear player inputs
+// resetGame() is called when the "Neues Spiel" button is clicked
 function resetGame() {
-  //Clear each player input field
-  document.getElementById('player1').value = '';
-  document.getElementById('player2').value = '';
-  document.getElementById('player3').value = '';
-  document.getElementById('player4').value = '';
+    //Clear each player input field
+    document.getElementById('player1').value = '';
+    document.getElementById('player2').value = '';
+    document.getElementById('player3').value = '';
+    document.getElementById('player4').value = '';
 
-  document.getElementById('message').textContent = '';
+    document.getElementById('message').textContent = '';
 
-  players = [];
-  submitting = false;
+    playerNames = [];
+    submitting = false;
+    gameId = null;
+    globalResult = null;
+    currentPlayer = null;
+    selectedCard = null;
 
-  gameId = null;
-  playerCardDecks = null;
-  activePlayer = null;
-  selectedCard = null;
-
-  document.getElementById('change-players-btn').style.display = 'block'; //Show the button to change players
+    document.getElementById('change-players-btn').style.display = 'block'; //Show the button to change players
 }
 
 // //Listener to check for all input changes in real time
@@ -112,14 +110,15 @@ function resetGame() {
 //   }
 // });
 
-// Start new game: set gameId, card setup, activePlayer
-function startGame(players) {
+
+// Start new game: set gameId, card setup, currentPlayer
+function startGame() {
     fetch('https://nowaunoweb.azurewebsites.net/api/Game/Start', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json; charset=UTF-8',
         },
-        body: JSON.stringify(players)
+        body: JSON.stringify(playerNames)
     })
         .then(response => {
             if (!response.ok) {
@@ -133,20 +132,26 @@ function startGame(players) {
             }
 
             gameId = gameData.Id;
-            playerCardDecks = gameData.Players;
-            activePlayer = gameData.NextPlayer;  // name of player who starts
-            console.log(activePlayer);  // Check the value of activePlayer
-            // setPlayerCardsToActive();
-            document.getElementById('game-id').textContent = gameId;
+            globalResult = gameData.Players;
+            console.log(globalResult);
+            currentPlayer = gameData.NextPlayer;  // name of player who starts
+            console.log(currentPlayer);  // Check the value of currentPlayer
 
-            displayPlayersCards(gameData.Players);
-            displayTopCard(gameId);
+            document.getElementById('top-section').firstElementChild.innerHTML = '';
+            document.getElementById('start-game').textContent = 'Start New Game';
+            let gameinfo = document.getElementById('game-info');
+            gameinfo.style.display = 'block';
+            gameinfo.style.backgroundImage = `url('imgs/table.jpg')`;
+
+            displayPlayersCards();
+            displayTopCard();
             displayGameDirection();
+            playCard();
 
-            document.getElementById('game-info').style.display = 'block';
         })
         .catch(error => console.error('Fehler beim Starten des Spiels:', error));
 }
+
 
 function getColorName(colorCode) {
     switch (colorCode) {
@@ -161,69 +166,100 @@ function getColorName(colorCode) {
 
 
 // display each players cards
-function displayPlayersCards(players) {
-    const playersCardsContainer = document.getElementById('players-cards');
-    playersCardsContainer.innerHTML = '';
+function displayPlayersCards() {
 
-    players.forEach(player => {
+    const allPlayersContainer = document.getElementById('players-cards');
+    allPlayersContainer.innerHTML = '';
+
+    globalResult.forEach(player => {
+        // create card section for every player
         const playerSection = document.createElement('div');
         playerSection.classList.add('player-section');
-        playerSection.id = `${player.Player}`;
         playerSection.innerHTML = `<h4>${player.Player}</h4>`;
 
         const playerCardsList = document.createElement('div');
         playerCardsList.classList.add('player-cards-container');
+        playerCardsList.id = `${player.Player}`;
 
-        player.Cards.forEach(card => {
-            if (card.Color.toLowerCase() === 'black' && (card.Text.toLowerCase() === 'changecolor' || card.Text.toLowerCase() === 'wild')) {
-                return;
-            }
+        // show, activate & highlight current player cards
+        if (player.Player === currentPlayer) {
 
-            const cardImg = document.createElement('img');
-            cardImg.classList.add('card');
+            // highlight the background of current players deck
+            playerCardsList.classList.add('active');
 
-            let colorCode = getColorName(card.Color.charAt(0).toLowerCase());
-            let textCode = card.Text.toLowerCase();
+            player.Cards.forEach(card => {
+                if (card.Color.toLowerCase() === 'black' && (card.Text.toLowerCase() === 'changecolor' || card.Text.toLowerCase() === 'wild')) {
+                    return;
+                }
 
-            switch (textCode) {
-                case 'zero': textCode = '0'; break;
-                case 'one': textCode = '1'; break;
-                case 'two': textCode = '2'; break;
-                case 'three': textCode = '3'; break;
-                case 'four': textCode = '4'; break;
-                case 'five': textCode = '5'; break;
-                case 'six': textCode = '6'; break;
-                case 'seven': textCode = '7'; break;
-                case 'eight': textCode = '8'; break;
-                case 'nine': textCode = '9'; break;
-                case 'draw2': textCode = '10'; break;
-                case 'reverse': textCode = '12'; break;
-                case 'skip': textCode = '11'; break;
-                case 'draw4': textCode = '13'; break;
-                //TODO CHANGE COLOR CARDS NOT SHOWING
-                case 'changecolor':
-                    textCode = card.Color.charAt(0).toLowerCase();
-                    colorCode = 'wild_';
-                    console.log(`Changecolor: ${textCode}, ${colorCode}`)
-                    break;
-                default:
-                    console.warn('Unbekannte Spezialkarte:', textCode);
-            }
+                // create active card image
+                const activeCardImg = document.createElement('img');
+                activeCardImg.classList.add('active-card');  // card is active
+                activeCardImg.addEventListener('click', playCard);  // card is clickable
 
+                // set card color and text 
+                let colorCode = getColorName(card.Color.charAt(0).toLowerCase());
+                let textCode = card.Text.toLowerCase();
 
-            cardImg.id = `${colorCode}${textCode}`
-            cardImg.src = `imgs/Cards/${colorCode}${textCode}.png`;
-            cardImg.alt = `${card.Color} ${card.Text}`;
-            playerCardsList.appendChild(cardImg);
+                switch (textCode) {
+                    case 'zero': textCode = '0'; break;
+                    case 'one': textCode = '1'; break;
+                    case 'two': textCode = '2'; break;
+                    case 'three': textCode = '3'; break;
+                    case 'four': textCode = '4'; break;
+                    case 'five': textCode = '5'; break;
+                    case 'six': textCode = '6'; break;
+                    case 'seven': textCode = '7'; break;
+                    case 'eight': textCode = '8'; break;
+                    case 'nine': textCode = '9'; break;
+                    case 'draw2': textCode = '10'; break;
+                    case 'reverse': textCode = '12'; break;
+                    case 'skip': textCode = '11'; break;
+                    case 'draw4': textCode = '13'; break;
+                    case 'changecolor':
+                        textCode = card.Color.charAt(0).toLowerCase();
+                        colorCode = 'wild_';
+                        console.log(`Changecolor: ${textCode}, ${colorCode}`)
+                        break;
+                    default:
+                        console.warn('Unknown Card:', textCode);
+                }
 
-            playerCardsList.appendChild(cardImg);
-        });
+                activeCardImg.id = `${colorCode}${textCode}`
+                activeCardImg.src = `imgs/Cards/${colorCode}${textCode}.png`;
+                activeCardImg.alt = `${card.Color} ${card.Text}`;
 
+                playerCardsList.appendChild(activeCardImg);
+
+            });
+
+        }
+        else {
+            // hide cards of inactive player
+            player.Cards.forEach(() => {
+                //   for (let i = 0; i < player.Cards.length; i++) {
+                const backCardImg = document.createElement('img');
+                backCardImg.src = 'imgs/Cards/back0.png'; // Pfad zur Rückseite der UNO-Karte
+                backCardImg.alt = 'Inactive Card';
+                playerCardsList.appendChild(backCardImg);
+                // remove 'active-card' class and click listener
+                backCardImg.removeEventListener('click', playCard); // deactivate click
+                backCardImg.className = 'inactive-card';  //change class name to 'inactive-card'
+            });
+
+            // de-highlight background for inactive player
+            playerCardsList.classList.remove('active');
+        }
+
+        // append card list to all player sections
         playerSection.appendChild(playerCardsList);
-        playersCardsContainer.appendChild(playerSection);
+        allPlayersContainer.appendChild(playerSection);
     });
 }
 
+
+
+// ToDo: ------ DO WE NEED THIS????? ----------
 // Hilfsfunktion zum Konvertieren des Kartentextes in Code
 function getCardTextCode(text) {
     switch (text) {
@@ -262,7 +298,7 @@ function displayGameDirection() {
 }
 
 
-// change direction of game and display it (flip image)
+// switch game direction and display it (flip image)
 function changeDirection() {
 
     let directionImg = document.getElementById('game-direction-image');
@@ -292,73 +328,31 @@ function changeDirection() {
 }
 
 
-// remove 'active-card' class and click listener again to set new one
-function removeActivePlayer() {
-
-    const activeCards = document.getElementsByClassName('active-card');
-
-    Array.from(activeCards).forEach(card => {
-        card.removeEventListener('click', playCard); // deactivate click
-        card.className = 'card';  //change class name back to 'card'
-    })
-
-    // de-highlight the background of players deck
-    const currentActiveSection = document.querySelector('.active');
-    if (currentActiveSection) {
-        currentActiveSection.classList.remove('active');
-    }
-}
-
-
-function setPlayerCardsToActive() {
-
-    const activePlayerSection = document.getElementById(activePlayer); // card container of active player
-    const playerCards = Array.from(activePlayerSection.getElementsByClassName('player-cards-container')[0].getElementsByTagName('img')); // all cards from active player
-
-    // change card class to 'active-card' and add click listener to each active player card
-    playerCards.forEach(card => {
-        card.className = 'active-card';
-        card.addEventListener('click', playCard);
-    });
-
-    // highlight the background of new active players deck
-    activePlayerSection.classList.add('active');
-}
-
-
-// TODO:
-// make active player cards clickable (set player id class and click listener)
-// highlight active player section
-// update variable activePlayer
+// update variable currentPlayer
 function nextPlayer() {
 
-    removeActivePlayer();  // first remove active-card class from current active player
-
     let direction = (gameDirection === "counterclockwise") ? -1 : 1;  // clockwise = 1, counterclockwise = -1
-    let activePlayerIndex = players.findIndex(player => player.name === activePlayer);  // find index of active player in player array
+    let currentPlayerIndex = players.findIndex(player => player.name === currentPlayer);  // find index of active player in player array
 
-    // update active player (considering direction)
-    if (activePlayerIndex !== -1) {
-        let nextIndex = (activePlayerIndex + direction + players.length) % players.length;
-        activePlayer = players[nextIndex].name;  //set new active player name
+    // update current player (considering direction)
+    if (currentPlayerIndex !== -1) {
+        let nextIndex = (currentPlayerIndex + direction + players.length) % players.length;
+        currentPlayer = players[nextIndex].name;  //set new current player
     } else {
-        console.error("player not found in array players!");
+        console.error("player not found in players array!");
     }
-
-    setPlayerCardsToActive();  // set new active player cards to active
-
 }
 
 
-
-// ToDo: play card - set selected card and add cardId
-function playCard(event, wildColor = null) {
+// play selected card
+async function playCard(event, wildColor = null) {
     console.log("Karte wurde geklickt!")
     selectedCard = event.target.id;  // card selected by active player
     let value = selectedCard.slice(1);  // removes first character
     let color = selectedCard.charAt(0);  // char on index 0
 
     // ToDo: Add CSS Animation
+    animateCard(event.target);
 
     let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}`;
 
@@ -366,34 +360,46 @@ function playCard(event, wildColor = null) {
         url += `&wildColor=${wildColor}`;
     }
 
-    fetch(url, {
-        method: 'PUT',
-        headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Fehler beim Spielen einer Karte! Status: ${response.status}`);
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
             }
-            return response.json();
-        })
-        .then(result => {
-            console.log("Karte wurde gespielt!");
-            // result: Player, Cards, Score
-            // TODO: Reset or update UI after a successful turn
-            // update active player cards
-            updatePlayerCardsAndScore(activePlayer);  // update cards of player after turn
-            nextPlayer();  // change player after turn
-        })
-        .catch(error => console.error('Fehler beim Spielen einer Karte:', error));
+        });
+
+        if (!response.ok) {
+            throw new Error(`Fehler beim Spielen einer Karte! Status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("Karte wurde gespielt!");
+        // update active player cards
+        updatePlayerCardsAndScore(currentPlayer);  // update cards of player after turn
+        nextPlayer();  // change player after turn
+        displayPlayersCards();
+
+
+    } catch (error) {
+        console.error('Fehler beim Spielen einer Karte:', error);
+        alert('Fehler beim Spielen der Karte!');
+    }
+}
+
+// let discarded card disapear
+// TODO: cooler animation --> card moves to discard pile
+function animateCard(cardElement) {
+    cardElement.classList.add('card-animate');
+    setTimeout(() => {
+        cardElement.classList.remove('card-animate');
+    }, 1000);
 }
 
 
-
+// TODO: check if globalResult is changed --> selector????
 // update cards and score of active player after turn
 async function updatePlayerCardsAndScore(playerName) {
-    // let name = globalResult.Players[playerId].Player;
+
     let URL = `https://nowaunoweb.azurewebsites.net/api/Game/GetCards/${gameID}?playerName=${playerName}`;
 
     let response = await fetch(URL, {
@@ -406,15 +412,15 @@ async function updatePlayerCardsAndScore(playerName) {
     let apiResponseToUpdatePlayerCards = await response.json();
 
     if (response.ok) {
-        globalResult.Players[playerName].Cards = apiResponseToUpdatePlayerCards.Cards;  //update cards
-        globalResult.Players[playerName].Score = apiResponseToUpdatePlayerCards.Score;  // update score
+        globalResult.Player[playerName].Cards = apiResponseToUpdatePlayerCards.Cards;  //update cards
+        globalResult.Player[playerName].Score = apiResponseToUpdatePlayerCards.Score;  // update score
         alert("HTTP-Error: " + response.status);
     }
 }
 
 
-// Funktion zum Anzeigen der obersten Karte (Top Card)
-async function displayTopCard(gameId) {
+// Show top card
+async function displayTopCard() {
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/TopCard/${gameId}`)
         .then(response => {
             if (!response.ok) {
@@ -427,7 +433,7 @@ async function displayTopCard(gameId) {
             topCardContainer.innerHTML = '';
 
             const topCardImg = document.createElement('img');
-            topCardImg.classList.add('card');
+            topCardImg.classList.add('active-card');
 
             let colorCode = getColorName(topCard.Color.charAt(0).toLowerCase());
             let textCode = getCardTextCode(topCard.Text.toLowerCase());
@@ -442,7 +448,8 @@ async function displayTopCard(gameId) {
 
 
 // Funktion zum Ziehen einer Karte
-function drawCard(gameId) {
+function drawCard() {
+
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/DrawCard/${gameId}`, {
         method: 'PUT',
         headers: {
@@ -476,3 +483,4 @@ function getPlayerHand(gameId, playerName) {
         })
         .catch(error => console.error('Fehler beim Abrufen der Kartenhand:', error));
 }
+

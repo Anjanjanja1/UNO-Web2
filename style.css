@@ -13,26 +13,30 @@ h1 {
 #game-info {
   display: none;
   margin-top: 20px;
+  margin-bottom: 20px;
   width: 100%;
-  max-width: 900px;
+  /* max-width: 900px; */
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
 }
 
 .player-section {
   margin-bottom: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
   padding: 10px;
-  background-color: #f9f9f9;
 }
 
 .player-section h4 {
   margin-top: 0;
+  color: white;
 }
 
-.player-section.active {
+.player-section .active {
   margin-bottom: 20px;
-  border: 1px solid #f3e742;
   border-radius: 8px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6),
+    /* Weiches Leuchten */
+    0 0 25px rgba(255, 255, 255, 0.4);
   padding: 10px;
   background-color: #fffbbe;
 }
@@ -55,14 +59,21 @@ h1 {
   animation: rotate-scale-up 0.7s linear both;
 }
 
-.card {
+.active-card {
   width: 60px;
   margin: 5px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
 }
 
-.player-cards-container .card:hover {
+.inactive-card {
+  width: 60px;
+  margin: 5px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+.player-cards-container .active-card:hover {
   cursor: pointer;
   transform: scale(1.5);
 }
@@ -84,6 +95,11 @@ h1 {
 #change-players-btn {
   display: none;
 }
+
+.card-animate {
+  animation: cardMove 1s ease-out;
+}
+
 
 
 /* ---------- keyframes for css animations */
@@ -119,5 +135,22 @@ h1 {
   100% {
     -webkit-transform: scale(1) rotateZ(360deg);
     transform: scale(1) rotateZ(360deg);
+  }
+}
+
+@keyframes cardMove {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(0);
+    opacity: 0;
   }
 }
