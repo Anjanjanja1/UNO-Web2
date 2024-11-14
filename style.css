@@ -78,6 +78,15 @@ h1 {
   transform: scale(1.5);
 }
 
+
+#card-section {
+  display: flex;
+  justify-content: center; 
+  align-items: center;    
+  gap: 20px;               
+  margin-top: 20px;
+}
+
 #top-card-section {
   margin-top: 20px;
   display: flex;
@@ -91,6 +100,28 @@ h1 {
   flex-direction: column;
   align-items: center;
 }
+
+
+#card-section {
+  display: flex;
+  gap: 20px; 
+}
+
+#top-card-section img,
+#draw-pile-section img {
+  width: 80px; 
+  height: 120px;
+}
+
+.draw-pile-card {
+  cursor: pointer; 
+}
+
+.draw-pile-card:hover {
+  transform: scale(1.1); 
+  transition: transform 0.2s ease-in-out;
+}
+
 
 #actions {
   display: flex;

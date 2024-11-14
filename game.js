@@ -460,7 +460,6 @@ async function updatePlayerCardsAndScore(playerName) {
     if (response.ok) {
         globalResult[playerIndex].Cards = apiResponseToUpdatePlayerCards.Cards;  //update cards
         globalResult[playerIndex].Score = apiResponseToUpdatePlayerCards.Score;  // update score
-        alert("HTTP-Error: " + response.status);
     }
 }
 
