@@ -150,6 +150,8 @@ function startGame() {
                 playerIndexMap[player.Player] = index;
             });
 
+            console.log(playerIndexMap);   // DELETE AGAIN
+
             document.getElementById('top-section').firstElementChild.innerHTML = '';
             document.getElementById('start-game').textContent = 'Start New Game';
             let gameinfo = document.getElementById('game-info');
@@ -332,12 +334,13 @@ function nextPlayer() {
     let direction = (gameDirection === "counterclockwise") ? -1 : 1;  // clockwise = 1, counterclockwise = -1
     let currentPlayerIndex = playerIndexMap[currentPlayer]; // find index of active player in player array
 
+
     // update current player (considering direction)
-    if (currentPlayerIndex !== -1) {
-        let nextIndex = (currentPlayerIndex + direction + playerNames.length) % playerNames.length;
-        currentPlayer = playerNames[nextIndex].name;  //set new current player
+    if (currentPlayerIndex !== undefined) {
+        let nextIndex = (currentPlayerIndex + direction + globalResult.length) % globalResult.length;
+        currentPlayer = globalResult[nextIndex].Player;
     } else {
-        console.error("player not found in players array!");
+        console.error("Player not found in playerIndexMap!");
     }
 }
 
