@@ -167,56 +167,72 @@ function startGame() {
         })
         .catch(error => console.error('Fehler beim Starten des Spiels:', error));
 }
+// Define a mapping between server and local text codes
+const serverToLocalCardMap = {
+    'Zero': '0',
+    'One': '1',
+    'Two': '2',
+    'Three': '3',
+    'Four': '4',
+    'Five': '5',
+    'Six': '6',
+    'Seven': '7',
+    'Eight': '8',
+    'Nine': '9',
+    'Draw2': '10',
+    'Skip': '11',
+    'Reverse': '12',
+    'Draw4': '13',
+    'ChangeColor': '14'
+};
 
+const localToServerCardMap = {
+    '0': 'Zero',
+    '1': 'One',
+    '2': 'Two',
+    '3': 'Three',
+    '4': 'Four',
+    '5': 'Five',
+    '6': 'Six',
+    '7': 'Seven',
+    '8': 'Eight',
+    '9': 'Nine',
+    '10': 'Draw2',
+    '11': 'Skip',
+    '12': 'Reverse',
+    '13': 'Draw4',
+    '14': 'ChangeColor'
+};
 
-function getColorName(colorCode) {
-    switch (colorCode) {
-        case 'r': return 'Red';
-        case 'b': return 'Blue';
-        case 'y': return 'Yellow';
-        case 'g': return 'Green';
-        case 'black': return 'Black';
-        default: return colorCode;  // fallback if color is unrecognized
+function getCardImagePath(color, serverText) {
+    let localText  = convertServerToLocal(serverText); 
+
+    if(!localText) {
+        console.warn('Unbekannte Karte:', serverText);
+        return '';
     }
+    return `imgs/Cards/${color}${localText}.png`;
 }
 
-function getCardImagePath(color, text) {
-    let colorCode;
-    let textCode;
-
-    if (text.toLowerCase() === 'changecolor') {
-        //handle change color cards specifically
-        colorCode = 'Black';
-        textCode = '14';
-    }
-    else if (text.toLowerCase() === 'draw4') {
-        //handle wild cards specifically
-        colorCode = 'Black';
-        textCode = '13';
-        //for all other card types -> standard colors and numbers
+function convertServerToLocal(serverValue) {
+    if (serverToLocalCardMap[serverValue]) {
+        return serverToLocalCardMap[serverValue];
     } else {
-        colorCode = getColorName(color.charAt(0).toLowerCase());
-        switch (text.toLowerCase()) {
-            case 'zero': textCode = '0'; break;
-            case 'one': textCode = '1'; break;
-            case 'two': textCode = '2'; break;
-            case 'three': textCode = '3'; break;
-            case 'four': textCode = '4'; break;
-            case 'five': textCode = '5'; break;
-            case 'six': textCode = '6'; break;
-            case 'seven': textCode = '7'; break;
-            case 'eight': textCode = '8'; break;
-            case 'nine': textCode = '9'; break;
-            case 'draw2': textCode = '10'; break;
-            case 'reverse': textCode = '12'; break;
-            case 'skip': textCode = '11'; break;
-            default:
-                console.warn('Unknown Card:', text);
-                textCode = text.toLowerCase(); //fallback for unknown card types
-        }
+        console.error(`Unknown server card value: ${serverValue}`);
+        return null;
     }
-    return `imgs/Cards/${colorCode}${textCode}.png`;
 }
+
+function convertLocalToServer(localValue) {
+    if (localToServerCardMap[localValue]) {
+        return localToServerCardMap[localValue];
+    } else {
+        console.error(`Unknown local card value: ${localValue}`);
+        return null;
+    }
+}
+
+
 
 // display each players cards
 function displayPlayersCards() {
@@ -241,9 +257,12 @@ function displayPlayersCards() {
             playerCardsList.classList.add('active');
 
             player.Cards.forEach(card => {
-                if (card.Color.toLowerCase() === 'black' && (card.Text.toLowerCase() === 'changecolor' || card.Text.toLowerCase() === 'wild')) {
-                    return;
+                //validate card has Color and Text properties
+                if (!card.Color || !card.Text) {
+                    console.error("Fehler: Die Karte hat keine gültigen Eigenschaften:", card);
+                    return; //skip this card if it doesn't have valid properties
                 }
+
 
                 // create active card image
                 const activeCardImg = document.createElement('img');
@@ -252,11 +271,7 @@ function displayPlayersCards() {
 
                 activeCardImg.src = getCardImagePath(card.Color, card.Text);
                 activeCardImg.alt = `${card.Color} ${card.Text}`;
-
-                //set unique ID for the card 
-                const colorCode = card.Color.charAt(0).toLowerCase(); // 'r', 'b', 'y', 'g'
-                const textCode = card.Text.toLowerCase();
-                activeCardImg.id = `${colorCode}${textCode}`;
+                activeCardImg.id = `${card.Color}${convertServerToLocal(card.Text)}`;
 
                 playerCardsList.appendChild(activeCardImg);
 
@@ -353,38 +368,25 @@ async function playCard(event, wildColor = null) {
     let playerIndex = playerIndexMap[currentPlayer];
     console.log("Global Result Player: " + globalResult[playerIndex]);   // DELETE
 
-    selectedCard = event.target.id;  // card selected by active player
-    console.log(`Selected Card ID: ${selectedCard}`);
-    let value = selectedCard.slice(1);  // removes first character
-    let color = selectedCard.charAt(0);  // char on index 0
+    selectedCard = event.target.id;  // card selected by active player; "Red10"
+    console.log(`Selected Card ID: ${selectedCard}`); //DELETE
 
-    //TODO if anyone has a better idea to convert the card value to the API value, please let me know :)
-    switch (value) {
-        case 'zero': value = '0'; break;
-        case 'one': value = '1'; break;
-        case 'two': value = '2'; break;
-        case 'three': value = '3'; break;
-        case 'four': value = '4'; break;
-        case 'five': value = '5'; break;
-        case 'six': value = '6'; break;
-        case 'seven': value = '7'; break;
-        case 'eight': value = '8'; break;
-        case 'nine': value = '9'; break;
-        case 'draw2': value = 'd2'; break;
-        case 'reverse': value = 'r'; break;
-        case 'skip': value = 's'; break;
-        case 'Black13': color = 'w', value = 'd4'; break;
-        case 'Black14': value = 'changecolor'; break;
-        default:
-            console.warn('Unknown card value:', value);
+    //split the card ID to get color and value
+    let color = selectedCard.match(/[A-Za-z]+/g)[0];
+    let value = selectedCard.match(/[0-9]+/g)[0];
+
+    //convert local card value to server representation
+    const serverValue = convertLocalToServer(value);
+
+    if (!serverValue) {
+        console.error("Card value cannot be converted:", value);
+        return;
     }
 
-    console.log(`Value: ${value}`);
+    //DELETE
+    console.log(`Value: ${serverValue}`); 
     console.log(`Color: ${color}`);
-
-
     console.log('Current player:', currentPlayer);
-
     console.log('gameId:', gameId);
     console.log('wildColor:', wildColor);
 
@@ -415,8 +417,11 @@ async function playCard(event, wildColor = null) {
 
         const result = await response.json();
         console.log("Karte wurde gespielt!");
-        console.log(result);
-        getCardImagePath(color, value);
+        console.log(result); //DELETE
+        
+        // Fetch the new top card from the server to keep everything in sync
+        await displayTopCard();
+
         // update active player cards
         await updatePlayerCardsAndScore(currentPlayer);  // update cards of player after turn
         nextPlayer();  // change player after turn
@@ -454,7 +459,7 @@ async function updatePlayerCardsAndScore(playerName) {
     });
 
     let apiResponseToUpdatePlayerCards = await response.json();
-    let playerIndex = playerIndexMap[currentPlayer];
+    let playerIndex = playerIndexMap[playerName];
 
 
     if (response.ok) {
@@ -505,11 +510,34 @@ function drawCard() {
             }
             return response.json();
         })
-        .then(newCard => {
-            console.log("Gezogene Karte:", newCard);
-        })
-        .catch(error => console.error('Fehler beim Ziehen einer Karte:', error));
+        .then(newCardResponse => {
+        console.log("Gezogene Karte:", newCardResponse );
 
+        //the actual card information is inside newCardResponse.Card
+        const newCard = newCardResponse.Card;
+
+        //validation of required properties
+        if (!newCard || !newCard.Color || !newCard.Text) {
+            console.error("Fehler: Die gezogene Karte hat keine gültigen Eigenschaften:", newCard);
+            return;
+        }
+
+        //update the current player's cards in the globalResult
+        let playerIndex = playerIndexMap[currentPlayer];
+        if (playerIndex !== undefined) {
+            //add the drawn card to the player's hand
+            globalResult[playerIndex].Cards.push(newCard);
+
+            //update the UI to display the new card in deck
+            displayPlayersCards();
+
+            //DELETE
+            console.log(`Aktualisierte Kartenhand von ${currentPlayer}:`, globalResult[playerIndex].Cards);
+        } else {
+            console.error("Aktueller Spieler kann in der PlayerIndexMap nicht gefunden werden!");
+        }
+    })
+        .catch(error => console.error('Fehler beim Ziehen einer Karte:', error));
 }
 
 
