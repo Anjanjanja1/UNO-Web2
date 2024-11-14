@@ -96,6 +96,7 @@ function resetGame() {
     globalResult = null;
     currentPlayer = null;
     selectedCard = null;
+    playerIndexMap = {};
 
     document.getElementById('change-players-btn').style.display = 'block'; //Show the button to change players
 }
@@ -327,7 +328,7 @@ function changeDirection() {
 
 }
 
-
+// DELETE function when not needed anymore (only for testing)
 // update variable currentPlayer
 function nextPlayer() {
 
@@ -419,7 +420,7 @@ async function playCard(event, wildColor = null) {
         getCardImagePath(color, value);
         // update active player cards
         await updatePlayerCardsAndScore(currentPlayer);  // update cards of player after turn
-        nextPlayer();  // change player after turn
+        nextPlayer();  // change player after turn   DELETE LATER
         displayPlayersCards();
 
 
@@ -454,7 +455,8 @@ async function updatePlayerCardsAndScore(playerName) {
     });
 
     let apiResponseToUpdatePlayerCards = await response.json();
-    let playerIndex = playerIndexMap[currentPlayer];
+    let playerIndex = playerIndexMap[playerName];
+    console.log(playerIndex);
 
 
     if (response.ok) {
@@ -491,26 +493,41 @@ async function displayTopCard() {
 
 // Funktion zum Ziehen einer Karte
 
-function drawCard() {
+async function drawCard() {
 
-    fetch(`https://nowaunoweb.azurewebsites.net/api/Game/DrawCard/${gameId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Fehler beim Ziehen einer Karte! Status: ${response.status}`);
+    try {
+        let response = await fetch(`https://nowaunoweb.azurewebsites.net/api/Game/DrawCard/${gameId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
             }
-            return response.json();
-        })
-        .then(newCard => {
-            console.log("Gezogene Karte:", newCard);
-        })
-        .catch(error => console.error('Fehler beim Ziehen einer Karte:', error));
+        });
+
+        if (!response.ok) {
+            throw new Error(`Fehler beim Ziehen einer Karte! Status: ${response.status}`);
+        }
+
+        // parse json object
+        let result = await response.json();
+        console.log("Gezogene Karte:", result.Card);
+        updatePlayerCardsAndScore(currentPlayer);
+        let index = playerIndexMap[currentPlayer];
+        console.log("Current Player Index:", index);  // DELETE
+        console.log("Current Player Data:", globalResult[index]);  // DELETE
+
+        currentPlayer = result.NextPlayer; // update current player
+        console.log("Next Player:", currentPlayer);
+        alert("Karte gezogen");
+        displayPlayersCards();
+
+    } catch (error) {
+        console.error('Fehler beim Ziehen einer Karte:', error);
+    }
 
 }
+
+
+
 
 
 // Funktion zum Abrufen der Kartenhand eines Spielers
