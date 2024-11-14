@@ -146,7 +146,7 @@ function startGame() {
             displayPlayersCards();
             displayTopCard();
             displayGameDirection();
-            
+
 
 
         })
@@ -169,11 +169,11 @@ function getCardImagePath(color, text) {
     let colorCode;
     let textCode;
 
-    if(text.toLowerCase() === 'changecolor') {
+    if (text.toLowerCase() === 'changecolor') {
         //handle change color cards specifically
         colorCode = 'wild_';
         textCode = color.charAt(0).toLowerCase(); // 'b', 'r', 'y', 'g'
-    } 
+    }
     //for all other card types -> standard colors and numbers
     else {
         colorCode = getColorName(color.charAt(0).toLowerCase());
@@ -234,7 +234,7 @@ function displayPlayersCards() {
 
                 activeCardImg.src = getCardImagePath(card.Color, card.Text);
                 activeCardImg.alt = `${card.Color} ${card.Text}`;
-                
+
                 //set unique ID for the card 
                 const colorCode = card.Color.charAt(0).toLowerCase(); // 'r', 'b', 'y', 'g'
                 const textCode = card.Text.toLowerCase();
@@ -360,23 +360,26 @@ async function playCard(event, wildColor = null) {
     console.log(`Value: ${value}`);
     console.log(`Color: ${color}`);
 
-    // ToDo: Add CSS Animation
+    // Add CSS Animation
     animateCard(event.target);
 
-    let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}`;
+    let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}&wildColor=${wildColor}`;
 
-    if (wildColor) {
-        url += `&wildColor=${wildColor}`;
-    }
+    // if (wildColor) {
+    //     url += `&wildColor=${wildColor}`;
+    // }
+
+    console.log("URL ____ :::: " + url);
 
     try {
         const response = await fetch(url, {
             method: 'PUT',
             headers: {
-                'Content-type': 'application/json; charset=UTF-8',
+                'Content-Type': 'application/json; charset=UTF-8',
             }
 
         });
+        console.log(response);
 
         if (!response.ok) {
             throw new Error(`Fehler beim Spielen einer Karte! Status: ${response.status}`);
