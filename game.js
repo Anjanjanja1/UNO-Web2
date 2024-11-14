@@ -171,11 +171,15 @@ function getCardImagePath(color, text) {
 
     if(text.toLowerCase() === 'changecolor') {
         //handle change color cards specifically
-        colorCode = 'wild_';
-        textCode = color.charAt(0).toLowerCase(); // 'b', 'r', 'y', 'g'
-    } 
+        colorCode = 'Black';
+        textCode = '14';
+    }
+    else if(text.toLowerCase() === 'draw4') {
+        //handle wild cards specifically
+        colorCode = 'Black';
+        textCode = '13';
     //for all other card types -> standard colors and numbers
-    else {
+    } else {
         colorCode = getColorName(color.charAt(0).toLowerCase());
         switch (text.toLowerCase()) {
             case 'zero': textCode = '0'; break;
@@ -191,7 +195,6 @@ function getCardImagePath(color, text) {
             case 'draw2': textCode = '10'; break;
             case 'reverse': textCode = '12'; break;
             case 'skip': textCode = '11'; break;
-            case 'draw4': textCode = '13'; break;
             default:
                 console.warn('Unknown Card:', text);
                 textCode = text.toLowerCase(); //fallback for unknown card types
@@ -348,18 +351,26 @@ async function playCard(event, wildColor = null) {
         case 'seven': value = '7'; break;
         case 'eight': value = '8'; break;
         case 'nine': value = '9'; break;
-        case 'draw2': value = '10'; break;
-        case 'reverse': value = '12'; break;
-        case 'skip': value = '11'; break;
-        case 'draw4': value = '13'; break;
-        case 'wild_': value = 'changecolor'; break;
+        case 'draw2': value = 'd2'; break;
+        case 'reverse': value = 'r'; break;
+        case 'skip': value = 's'; break;
+        case 'Black13': color = 'w', value = 'd4'; break;
+        case 'Black14': value = 'changecolor'; break;
         default:
             console.warn('Unknown card value:', value);
     }
 
-    console.log(`Value: ${value}`);
-    console.log(`Color: ${color}`);
+    console.log(`Value: ${ value }`);
+    console.log(`Color: ${ color}`);
 
+
+    console.log('Current player:', currentPlayer);
+
+    // console.log('Players cards:', currentPlayer.Cards);
+    
+    console.log('gameId:', gameId);
+    console.log('wildColor:', wildColor);
+    
     // ToDo: Add CSS Animation
     animateCard(event.target);
 
