@@ -5,6 +5,7 @@ let gameId = null; // Speichert die Spiel-ID global
 let gameDirection = "clockwise";  // Spielrichtung - default im Uhrzeigersinn
 let playerNames = [];  // Spielernamen
 let globalResult = Object();  // Players: [Player{ Cards{}, Score}]
+let playerIndexMap = {};   // Player : Index
 let currentPlayer = null;   // Name des Spielers, der am Zug ist
 let selectedCard = null;   // Karte, die gespielt werden soll
 let submitting = false;  //To control error messages; tracks if a form submission attempt is being made
@@ -136,6 +137,18 @@ function startGame() {
             console.log(globalResult);
             currentPlayer = gameData.NextPlayer;  // name of player who starts
             console.log(currentPlayer);  // Check the value of currentPlayer
+            console.log("Next Player: " + gameData.NextPlayer);  // DELETE AGAIN
+            console.log("Current Player: " + currentPlayer);  // DELETE AGAIN
+
+            // Initialize player index map
+            // "Melissa": 0,
+            //     "Ajla": 1,
+            //     "Sophia": 2,
+            //     "Anja": 3
+
+            globalResult.forEach((player, index) => {
+                playerIndexMap[player.Player] = index;
+            });
 
             document.getElementById('top-section').firstElementChild.innerHTML = '';
             document.getElementById('start-game').textContent = 'Start New Game';
@@ -174,11 +187,11 @@ function getCardImagePath(color, text) {
         colorCode = 'Black';
         textCode = '14';
     }
-    else if(text.toLowerCase() === 'draw4') {
+    else if (text.toLowerCase() === 'draw4') {
         //handle wild cards specifically
         colorCode = 'Black';
         textCode = '13';
-    //for all other card types -> standard colors and numbers
+        //for all other card types -> standard colors and numbers
     } else {
         colorCode = getColorName(color.charAt(0).toLowerCase());
         switch (text.toLowerCase()) {
@@ -317,12 +330,12 @@ function changeDirection() {
 function nextPlayer() {
 
     let direction = (gameDirection === "counterclockwise") ? -1 : 1;  // clockwise = 1, counterclockwise = -1
-    let currentPlayerIndex = players.findIndex(player => player.name === currentPlayer);  // find index of active player in player array
+    let currentPlayerIndex = playerIndexMap[currentPlayer]; // find index of active player in player array
 
     // update current player (considering direction)
     if (currentPlayerIndex !== -1) {
-        let nextIndex = (currentPlayerIndex + direction + players.length) % players.length;
-        currentPlayer = players[nextIndex].name;  //set new current player
+        let nextIndex = (currentPlayerIndex + direction + playerNames.length) % playerNames.length;
+        currentPlayer = playerNames[nextIndex].name;  //set new current player
     } else {
         console.error("player not found in players array!");
     }
@@ -332,7 +345,10 @@ function nextPlayer() {
 // play selected card
 async function playCard(event, wildColor = null) {
     console.log("Karte wurde geklickt!")
-    console.log(event);
+    console.log(event);  // DELETE
+    console.log("Current Player: " + currentPlayer);  //DELETE
+    let playerIndex = playerIndexMap[currentPlayer];
+    console.log("Global Result Player: " + globalResult[playerIndex]);   // DELETE
 
     selectedCard = event.target.id;  // card selected by active player
     console.log(`Selected Card ID: ${selectedCard}`);
@@ -360,15 +376,15 @@ async function playCard(event, wildColor = null) {
             console.warn('Unknown card value:', value);
     }
 
-    console.log(`Value: ${ value }`);
-    console.log(`Color: ${ color}`);
+    console.log(`Value: ${value}`);
+    console.log(`Color: ${color}`);
 
 
     console.log('Current player:', currentPlayer);
 
     console.log('gameId:', gameId);
     console.log('wildColor:', wildColor);
-    
+
     // ToDo: Add CSS Animation
     animateCard(event.target);
 
@@ -396,6 +412,7 @@ async function playCard(event, wildColor = null) {
 
         const result = await response.json();
         console.log("Karte wurde gespielt!");
+        console.log(result);
         getCardImagePath(color, value);
         // update active player cards
         await updatePlayerCardsAndScore(currentPlayer);  // update cards of player after turn
@@ -434,10 +451,12 @@ async function updatePlayerCardsAndScore(playerName) {
     });
 
     let apiResponseToUpdatePlayerCards = await response.json();
+    let playerIndex = playerIndexMap[currentPlayer];
+
 
     if (response.ok) {
-        globalResult.Player[playerName].Cards = apiResponseToUpdatePlayerCards.Cards;  //update cards
-        globalResult.Player[playerName].Score = apiResponseToUpdatePlayerCards.Score;  // update score
+        globalResult[playerIndex].Cards = apiResponseToUpdatePlayerCards.Cards;  //update cards
+        globalResult[playerIndex].Score = apiResponseToUpdatePlayerCards.Score;  // update score
         alert("HTTP-Error: " + response.status);
     }
 }
