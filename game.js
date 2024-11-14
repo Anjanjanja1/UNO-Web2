@@ -341,6 +341,7 @@ function changeDirection() {
         directionImg.classList.remove("rotate-scale-up");
     }, 700);
 
+    console.log("Spielrichtung geändert zu:", gameDirection);
 }
 
 // DELETE function when not needed anymore (only for testing)
@@ -366,6 +367,7 @@ async function playCard(event, wildColor = null) {
     console.log("Karte wurde geklickt!")
     console.log(event);  // DELETE
     console.log("Current Player: " + currentPlayer);  //DELETE
+
     let playerIndex = playerIndexMap[currentPlayer];
     console.log("Global Result Player: " + globalResult[playerIndex]);   // DELETE
 
@@ -380,9 +382,33 @@ async function playCard(event, wildColor = null) {
     const serverValue = convertLocalToServer(value);
 
     if (!serverValue) {
-        console.error("Card value cannot be converted:", value);
+        console.error("Kartenwert kann nicht umgerechnet werden:", value);
+        wrongCardAnimation(event.target);  //highlight card as a wrong move
         return;
     }
+
+    //check if the card played is a "Reverse" card and change the direction before proceeding
+    if (serverValue === "Reverse") {
+        console.log("Umgekehrte Karte gespielt! Richtungswechsel.");
+        changeDirection();  //update the game direction visually and in the game state
+    }
+
+    let topCard = await getTopCard();
+    //convert top card value to local representation for comparison
+    const topCardValueLocal = convertServerToLocal(topCard.Text);
+    if (!topCardValueLocal) {
+        console.error("Der oberste Kartenwert konnte nicht konvertiert werden:", topCard.Text);
+        return;
+    }
+
+    //validate if the selected card can be played
+    if (!isCardPlayable(serverValue, color, topCardValueLocal, topCard.Color)) {
+        console.error("Ungültige Karte gespielt:", serverValue);
+        wrongCardAnimation(event.target);  //highlight card as a wrong move
+        return;
+    }
+    console.log('Karte ist gültig, mit dem Spiel fortfahren...');
+
 
     //DELETE
     console.log(`Value: ${serverValue}`); 
@@ -395,11 +421,8 @@ async function playCard(event, wildColor = null) {
     animateCard(event.target);
 
     let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}&wildColor=${wildColor}`;
-
-    // if (wildColor) {
-    //     url += `&wildColor=${wildColor}`;
-    // }
-
+    console.log("Spielen Karte, URL:", url);
+    
     console.log("URL ____ :::: " + url);
 
     try {
@@ -419,21 +442,48 @@ async function playCard(event, wildColor = null) {
         const result = await response.json();
         console.log("Karte wurde gespielt!");
         console.log(result); //DELETE
-        
-        // Fetch the new top card from the server to keep everything in sync
-        await displayTopCard();
 
-        // update active player cards
-        await updatePlayerCardsAndScore(currentPlayer);  // update cards of player after turn
-        nextPlayer();  // change player after turn   DELETE LATER
-        displayPlayersCards();
-
+        //handle special cards
+        if (serverValue === 'Reverse') {
+            changeDirection();
+        }
+        if (serverValue === 'Skip') {
+            skipPlayer();
+        }
+        if (serverValue === 'Draw2') {
+            //the server already adds cards to the next player -> just need to skip that player's turn
+            console.log(`Der Spieler muss 2 Karten ziehen und seinen Zug verlieren.`);
+            skipPlayer();  // Skip the turn of the player drawing cards        }
+        }
+        //UPDATE THE GAME STATE
+        await displayTopCard();  //display the new top card after play
+        await updatePlayerCardsAndScore(currentPlayer);  //update cards of the current player
+        nextPlayer();  //determine the next player after the card is played
+        displayPlayersCards();  //update the player card displays
 
     } catch (error) {
         console.error('Fehler beim Spielen einer Karte:', error);
         alert('Fehler beim Spielen der Karte!');
     }
+}
 
+//card validity
+function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
+    //the card is playable if it matches the top card's color or value or if it is a wildcard
+    console.log(`Comparing played card (Color: ${cardColor}, Value: ${cardValue}) with Top Card (Color: ${topCardColor}, Value: ${topCardValue})`);
+    return cardColor === topCardColor || cardValue === topCardValue || cardColor === "Black";
+}
+
+function wrongCardAnimation(cardElement) {
+    cardElement.classList.add('wrong-card');
+    setTimeout(() => {
+        cardElement.classList.remove('wrong-card');
+    }, 2000);  //animation lasts for 2 seconds
+}
+
+function skipPlayer() {
+    nextPlayer();
+    console.log("Spieler übersprungen! Neuer currentPlayer:", currentPlayer);
 }
 
 // let discarded card disapear
@@ -461,7 +511,7 @@ async function updatePlayerCardsAndScore(playerName) {
 
     let apiResponseToUpdatePlayerCards = await response.json();
     let playerIndex = playerIndexMap[playerName];
-    console.log(playerIndex);
+    console.log('PlayerIndex: ', playerIndex);
 
 
 
@@ -471,6 +521,17 @@ async function updatePlayerCardsAndScore(playerName) {
     }
 }
 
+//fetch the current top card
+async function getTopCard() {
+    const response = await fetch(`https://nowaunoweb.azurewebsites.net/api/Game/TopCard/${gameId}`);
+    if (response.ok) {
+        let topCard = await response.json();
+        return topCard;
+    } else {
+        console.error('Error fetching the top card:', response.status);
+        return null;
+    }
+}
 
 // Show top card
 async function displayTopCard() {
@@ -513,40 +574,14 @@ async function drawCard() {
             }
             return response.json();
         })
-        .then(newCardResponse => {
-        console.log("Gezogene Karte:", newCardResponse );
-
-
-        //the actual card information is inside newCardResponse.Card
-        const newCard = newCardResponse.Card;
-
-        //validation of required properties
-        if (!newCard || !newCard.Color || !newCard.Text) {
-            console.error("Fehler: Die gezogene Karte hat keine gültigen Eigenschaften:", newCard);
-            return;
-        }
-
-        //update the current player's cards in the globalResult
-        let playerIndex = playerIndexMap[currentPlayer];
-        if (playerIndex !== undefined) {
-            //add the drawn card to the player's hand
-            globalResult[playerIndex].Cards.push(newCard);
-
-            //update the UI to display the new card in deck
-            displayPlayersCards();
-
-            //DELETE
-            console.log(`Aktualisierte Kartenhand von ${currentPlayer}:`, globalResult[playerIndex].Cards);
-        } else {
-            console.error("Aktueller Spieler kann in der PlayerIndexMap nicht gefunden werden!");
-        }
-    })
+        .then(drawCard => {
+            console.log('Karte wurde gezogen:', drawCard);
+            updatePlayerCardsAndScore(currentPlayer);  //update cards and score of the current player
+            nextPlayer();  //determine the next player after the card is played
+            displayPlayersCards();  //update the player card displays
+        })
         .catch(error => console.error('Fehler beim Ziehen einer Karte:', error));
 }
-
-
-
-
 
 // Funktion zum Abrufen der Kartenhand eines Spielers
 function getPlayerHand(gameId, playerName) {

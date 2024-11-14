@@ -138,6 +138,9 @@ h1 {
   animation: cardMove 1s ease-out;
 }
 
+.wrong-card {
+  animation: shake 0.5s ease-in-out;
+}
 
 
 /* ---------- keyframes for css animations */
@@ -191,4 +194,12 @@ h1 {
     transform: scale(0);
     opacity: 0;
   }
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-10px); }
+    100% { transform: translateX(0); }
 }
