@@ -395,6 +395,7 @@ async function playCard(event, wildColor = null) {
 
         const result = await response.json();
         console.log("Karte wurde gespielt!");
+        getCardImagePath(color, value);
         // update active player cards
         await updatePlayerCardsAndScore(currentPlayer);  // update cards of player after turn
         nextPlayer();  // change player after turn
