@@ -342,7 +342,7 @@ function changeDirection() {
 
 }
 
-
+// DELETE function when not needed anymore (only for testing)
 // update variable currentPlayer
 function nextPlayer() {
 
@@ -424,7 +424,7 @@ async function playCard(event, wildColor = null) {
 
         // update active player cards
         await updatePlayerCardsAndScore(currentPlayer);  // update cards of player after turn
-        nextPlayer();  // change player after turn
+        nextPlayer();  // change player after turn   DELETE LATER
         displayPlayersCards();
 
 
@@ -460,6 +460,8 @@ async function updatePlayerCardsAndScore(playerName) {
 
     let apiResponseToUpdatePlayerCards = await response.json();
     let playerIndex = playerIndexMap[playerName];
+    console.log(playerIndex);
+
 
 
     if (response.ok) {
@@ -496,7 +498,7 @@ async function displayTopCard() {
 
 // Funktion zum Ziehen einer Karte
 
-function drawCard() {
+async function drawCard() {
 
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/DrawCard/${gameId}`, {
         method: 'PUT',
@@ -512,6 +514,7 @@ function drawCard() {
         })
         .then(newCardResponse => {
         console.log("Gezogene Karte:", newCardResponse );
+
 
         //the actual card information is inside newCardResponse.Card
         const newCard = newCardResponse.Card;
@@ -539,6 +542,9 @@ function drawCard() {
     })
         .catch(error => console.error('Fehler beim Ziehen einer Karte:', error));
 }
+
+
+
 
 
 // Funktion zum Abrufen der Kartenhand eines Spielers
