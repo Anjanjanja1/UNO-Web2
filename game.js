@@ -96,6 +96,7 @@ function resetGame() {
     globalResult = null;
     currentPlayer = null;
     selectedCard = null;
+    playerIndexMap = {};
 
     document.getElementById('change-players-btn').style.display = 'block'; //Show the button to change players
 }
