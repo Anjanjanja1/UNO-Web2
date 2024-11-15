@@ -356,6 +356,7 @@ function nextPlayer() {
     if (currentPlayerIndex !== undefined) {
         let nextIndex = (currentPlayerIndex + direction + globalResult.length) % globalResult.length;
         currentPlayer = globalResult[nextIndex].Player;
+        console.log(`Next player is: ${currentPlayer}`);
     } else {
         console.error("Player not found in playerIndexMap!");
     }
@@ -444,20 +445,21 @@ async function playCard(event, wildColor = null) {
         console.log(result); //DELETE
 
         //handle special cards
-        if (serverValue === 'Reverse') {
-            changeDirection();
-        }
+        // if (serverValue === 'Reverse') {
+        //     changeDirection();
+        // }
         if (serverValue === 'Skip') {
             skipPlayer();
         }
         if (serverValue === 'Draw2') {
             //the server already adds cards to the next player -> just need to skip that player's turn
             console.log(`Der Spieler muss 2 Karten ziehen und seinen Zug verlieren.`);
-            skipPlayer();  // Skip the turn of the player drawing cards        }
+            nextPlayer();
         }
         //UPDATE THE GAME STATE
-        await displayTopCard();  //display the new top card after play
         await updatePlayerCardsAndScore(currentPlayer);  //update cards of the current player
+        await displayTopCard();  //display the new top card after play
+        displayPlayersCards();  //update the player card displays
         nextPlayer();  //determine the next player after the card is played
         displayPlayersCards();  //update the player card displays
 
@@ -492,6 +494,7 @@ function animateCard(cardElement) {
     cardElement.classList.add('card-animate');
     setTimeout(() => {
         cardElement.classList.remove('card-animate');
+        displayPlayersCards();  //update the player card displays
     }, 1000);
 }
 
