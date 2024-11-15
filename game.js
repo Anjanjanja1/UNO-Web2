@@ -246,6 +246,10 @@ function displayPlayersCards() {
         const playerSection = document.createElement('div');
         playerSection.classList.add('player-section');
         playerSection.innerHTML = `<h4>${player.Player}</h4>`;
+        playerSection.classList.add('player-section');
+        playerSection.innerHTML = `<h4>${player.Player}</h4>    
+         <p id="${player.Player}-score" class="player-score">Score: ${player.Score}</p>`;
+
 
         const playerCardsList = document.createElement('div');
         playerCardsList.classList.add('player-cards-container');
@@ -382,6 +386,7 @@ async function playCard(event, wildColor = null) {
     //convert local card value to server representation
     const serverValue = convertLocalToServer(value);
 
+    console.log(`Selected Card(server value): ${color} ${value}`);  //DELETE
     if (!serverValue) {
         console.error("Kartenwert kann nicht umgerechnet werden:", value);
         wrongCardAnimation(event.target);  //highlight card as a wrong move
@@ -403,7 +408,7 @@ async function playCard(event, wildColor = null) {
     }
 
     //validate if the selected card can be played
-    if (!isCardPlayable(serverValue, color, topCardValueLocal, topCard.Color)) {
+    if (!isCardPlayable(value, color, topCardValueLocal, topCard.Color)) {
         console.error("Ungültige Karte gespielt:", serverValue);
         wrongCardAnimation(event.target);  //highlight card as a wrong move
         return;
@@ -422,7 +427,9 @@ async function playCard(event, wildColor = null) {
     animateCard(event.target);
 
     let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}&wildColor=${wildColor}`;
-    console.log("Spielen Karte, URL:", url);
+
+    console.warn("Spielen Karte, URL:", url);
+
 
     console.log("URL ____ :::: " + url);
 
@@ -444,10 +451,6 @@ async function playCard(event, wildColor = null) {
         console.log("Karte wurde gespielt!");
         console.log(result); //DELETE
 
-        //handle special cards
-        // if (serverValue === 'Reverse') {
-        //     changeDirection();
-        // }
         if (serverValue === 'Skip') {
             skipPlayer();
         }
@@ -473,7 +476,21 @@ async function playCard(event, wildColor = null) {
 function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
     //the card is playable if it matches the top card's color or value or if it is a wildcard
     console.log(`Comparing played card (Color: ${cardColor}, Value: ${cardValue}) with Top Card (Color: ${topCardColor}, Value: ${topCardValue})`);
-    return cardColor === topCardColor || cardValue === topCardValue || cardColor === "Black";
+
+    if (cardColor === topCardColor) {
+        return true;
+    }
+
+    if (cardValue === topCardValue) {
+        return true;
+    }
+
+    if (cardColor === "Black") {
+        return true;
+    }
+
+    // Card does not match any valid criteria
+    return false;
 }
 
 function wrongCardAnimation(cardElement) {
