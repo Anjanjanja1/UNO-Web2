@@ -206,9 +206,9 @@ const localToServerCardMap = {
 };
 
 function getCardImagePath(color, serverText) {
-    let localText  = convertServerToLocal(serverText); 
+    let localText = convertServerToLocal(serverText);
 
-    if(!localText) {
+    if (!localText) {
         console.warn('Unbekannte Karte:', serverText);
         return '';
     }
@@ -246,6 +246,10 @@ function displayPlayersCards() {
         const playerSection = document.createElement('div');
         playerSection.classList.add('player-section');
         playerSection.innerHTML = `<h4>${player.Player}</h4>`;
+        playerSection.classList.add('player-section');
+        playerSection.innerHTML = `<h4>${player.Player}</h4>    
+         <p id="${player.Player}-score" class="player-score">Score: ${player.Score}</p>`;
+
 
         const playerCardsList = document.createElement('div');
         playerCardsList.classList.add('player-cards-container');
@@ -413,7 +417,7 @@ async function playCard(event, wildColor = null) {
 
 
     //DELETE
-    console.log(`Value: ${serverValue}`); 
+    console.log(`Value: ${serverValue}`);
     console.log(`Color: ${color}`);
     console.log('Current player:', currentPlayer);
     console.log('gameId:', gameId);
@@ -424,7 +428,7 @@ async function playCard(event, wildColor = null) {
 
     let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}&wildColor=${wildColor}`;
     console.warn("Spielen Karte, URL:", url);
-    
+
     console.log("URL ____ :::: " + url);
 
     try {
@@ -470,7 +474,7 @@ async function playCard(event, wildColor = null) {
 function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
     //the card is playable if it matches the top card's color or value or if it is a wildcard
     console.log(`Comparing played card (Color: ${cardColor}, Value: ${cardValue}) with Top Card (Color: ${topCardColor}, Value: ${topCardValue})`);
-    
+
     if (cardColor === topCardColor) {
         return true;
     }
