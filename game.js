@@ -431,7 +431,9 @@ async function playCard(event, wildColor = null) {
     animateCard(event.target);
 
     let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}&wildColor=${wildColor}`;
+
     console.warn("Spielen Karte, URL:", url);
+
 
     console.log("URL ____ :::: " + url);
 
@@ -580,30 +582,86 @@ async function displayTopCard() {
 }
 
 
-// Funktion zum Ziehen einer Karte
-
+// draw a card from pile
 async function drawCard() {
 
-    fetch(`https://nowaunoweb.azurewebsites.net/api/Game/DrawCard/${gameId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Fehler beim Ziehen einer Karte! Status: ${response.status}`);
+    try {
+        const response = await fetch(`https://nowaunoweb.azurewebsites.net/api/Game/DrawCard/${gameId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
             }
-            return response.json();
-        })
-        .then(drawCard => {
-            console.log('Karte wurde gezogen:', drawCard);
-            updatePlayerCardsAndScore(currentPlayer);  //update cards and score of the current player
-            nextPlayer();  //determine the next player after the card is played
-            displayPlayersCards();  //update the player card displays
-        })
-        .catch(error => console.error('Fehler beim Ziehen einer Karte:', error));
+        });
+
+        if (!response.ok) {
+            throw new Error(`Fehler beim Ziehen einer Karte! Status: ${response.status}`);
+        }
+
+        // wait for json result
+        const result = await response.json();
+        console.log('Karte wurde gezogen:', result);
+
+        console.log('Karte wurde gezogen:', drawCard);
+        addCardToDeck(result); // start css animation
+        updatePlayerCardsAndScore(currentPlayer);  //update cards and score of the current player
+        setTimeout(() => {
+            currentPlayer = result.NextPlayer; // change player after turn
+            displayPlayersCards();
+        }, 2000);
+    } catch (error) {
+        console.error('Fehler beim Ziehen einer Karte:', error);
+    }
 }
+
+
+// CSS Animation - draw card and append to currentPlayers deck
+function addCardToDeck(result) {
+
+    let drawPile = document.getElementById("draw-pile-card");
+    let newCard = document.createElement("img");
+    newCard.classList.add("new-card");
+    newCard.src = getCardImagePath(result.Card.Color, result.Card.Text);  // card front
+    newCard.alt = `${result.Card.Color} ${result.Card.Text}`;
+    let playerCardsList = document.getElementById(currentPlayer);
+
+    // position of newCard over stack
+    const stackRect = drawPile.getBoundingClientRect();
+    // Set new card position
+    newCard.style.top = `${stackRect.top}px`;
+    newCard.style.left = `${stackRect.left}px`;
+
+    document.body.appendChild(newCard);  // insert card into DOM
+
+    // calculate destination: players hand
+    const handRect = playerCardsList.getBoundingClientRect();
+    const cardPositionInDeck = {
+        top: handRect.top + 10,
+        left: handRect.left + playerCardsList.children.length * 70,  // placed in row
+    };
+
+    // start animation
+    setTimeout(() => {
+        newCard.style.top = `${cardPositionInDeck.top}px`;
+        newCard.style.left = `${cardPositionInDeck.left}px`;
+
+        // move card to players deck
+        setTimeout(() => {
+            newCard.style.position = "static"; // reset position
+            playerCardsList.appendChild(newCard);
+            newCard.classList.remove("new-card");
+            newCard.classList.add("active-card");
+
+            //set unique ID for the new card 
+            let colorCode = result.Card.Color.charAt(0).toLowerCase(); // 'r', 'b', 'y', 'g'
+            let textCode = result.Card.Text.toLowerCase();
+            newCard.id = `${colorCode}${textCode}`;
+
+            displayPlayersCards();
+
+        }, 600);
+    }, 100);
+}
+
 
 // Funktion zum Abrufen der Kartenhand eines Spielers
 function getPlayerHand(gameId, playerName) {
