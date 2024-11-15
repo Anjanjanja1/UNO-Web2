@@ -129,6 +129,10 @@ function startGame() {
             return response.json();
         })
         .then(gameData => {
+            gameId = gameData.Id;
+            document.getElementById('top-section').style.display = 'none'; //hide top section
+            document.getElementById('game-info').style.display = 'block'; //show game section
+            document.getElementById('game-controls').style.display = 'flex'; //show game controls
             if (!gameData || !gameData.Id || !gameData.Players || gameData.Players.length === 0) {
                 throw new Error("Ungültige Datenstruktur");
             }
