@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap');
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -162,6 +164,37 @@ h1 {
   z-index: 1000;
 }
 
+/* Enhanced Help Modal Header */
+.modal-header {
+  background: linear-gradient(45deg, #ff9800, #f44336); /* Eye-catching gradient */
+  color: #ffffff;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.modal-title {
+  font-size: 2.4rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+/* Close Button Style */
+.btn-close {
+  background-color: #ffffff;
+  border: none;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-close:hover {
+  background-color: #ff5722;
+  transform: scale(1.1);
+}
+
+/* Help Button Container */
 #help-button-container-before {
   margin-top: 10px;
   text-align: center;
@@ -186,6 +219,187 @@ h1 {
   font-size: 14px;
   padding: 8px 12px;
 }
+
+/* Modal Content Styling */
+.modal-content {
+  background-color: #1d0c06; 
+  color: #ffffff; 
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.modal-body {
+  font-family: 'Baloo 2', sans-serif;
+  padding: 1.25rem;
+}
+
+.help-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "object setup play"
+    "cards cards scoring";
+  gap: 1.5rem;
+  padding: 1.25rem;
+}
+
+
+.help-section {
+  padding: 1.5rem;
+  background: linear-gradient(145deg, #ffffff, #f3f3f3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 3px solid rgba(0, 0, 0, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.2); 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.help-section:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.help-section h6 {
+  font-size: 1.8rem;
+  color: #ffffff; /*optional: #fa7019 😊*/
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.help-section h6::before {
+  content: '📚';
+  margin-right: 0.5rem;
+}
+
+.help-section p {
+  color: #ffffff; 
+  border-radius: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); 
+  line-height: 1.6; 
+}
+
+.help-section ul {
+  font-size: 1.1rem;
+  margin: 0;
+  text-align: left;
+  padding-left: 0;
+  list-style-type: none;
+}
+
+.help-section ul li {
+  padding: 1rem; 
+  border-radius: 1rem; 
+  margin-bottom: 0.75rem; 
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
+  transition: background-color 0.2s ease, box-shadow 0.2s ease; 
+  color: #ffffff;
+}
+.help-section p:hover,
+.help-section ul li:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); 
+}
+
+.help-section ul li strong {
+  font-weight: bold;
+  color: #ffffff;
+}
+#help-specialList li{
+  background: #6a1b9a;
+}
+
+#help-specialList li::before {
+  content: "⭐ ";
+  color: #ff9800;
+}
+
+.card-types img {
+  width: 2.2rem;
+  height: auto;
+  margin-right: 0.8rem;
+  border-radius: 0.5rem;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  vertical-align: middle;
+}
+
+.card-types img:hover {
+  transform: scale(1.3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+#object {
+  background: linear-gradient(145deg, #ff4c4c, #cc0000); color: #ffffff; 
+  grid-area: object; 
+}
+
+#setup {
+  background: linear-gradient(145deg, #4caf50, #388e3c); color: #ffffff; 
+  grid-area: setup; 
+}
+
+#play {
+  background: linear-gradient(145deg, #ffca28, #fbc02d); color: #ffffff; 
+  grid-area: play; 
+}
+
+#cards {
+  background: linear-gradient(145deg, #1e88e5, #1565c0); color: #ffffff; 
+  grid-area: cards; 
+}
+
+#scoring {
+  background: linear-gradient(145deg, #8e24aa, #6a1b9a); color: #ffffff;
+  grid-area: scoring; 
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Responsive Grid for Smaller Screens */
+@media (max-width: 768px) {
+  .help-container {
+    grid-template-columns: 1fr; /* Single column on small screens */
+    grid-template-areas:
+      "object"
+      "setup"
+      "play"
+      "cards"
+      "scoring";
+    gap: 1rem;
+  }
+
+  .help-section h6 {
+    font-size: 1.6rem; /* Smaller font size for compact view */
+  }
+
+  .card-types img {
+    width: 2.5rem; /* Resize images for better fit on smaller screens */
+  }
+}
+
 
 /* ---------- keyframes for css animations */
 

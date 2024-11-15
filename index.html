@@ -10,7 +10,7 @@
   <title>UNO</title>
 </head>
 
-<body class="container text-center">
+<div class="container text-center">
 
   <div id="top-section">
     <h1 class="my-4">Welcome to UNO!</h1>
@@ -97,29 +97,70 @@
     </div>
   </div>
 
-  <!-- Help Modal -->
-  <div class="modal" id="helpModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Help Information</h5>
-          <button type="button" class="btn-close" aria-label="Close" onclick="closeHelpModal()"></button>
-        </div>
-        <div class="modal-body">
-          <p>Here you can find instructions about how to play UNO.</p>
-          <ul>
-            <li>Each player is dealt 7 cards to start the game.</li>
-            <li>Match the card in the discard pile by color or number to play your card.</li>
-            <li>Special cards like Reverse, Draw Two, and Skip can make the game more exciting!</li>
-            <li>Don't forget to say "UNO" when you have only one card left!</li>
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeHelpModal()">Close</button>
+<!-- Help Modal -->
+<div class="modal" id="helpModal" tabindex="-1">
+  <div class="modal-dialog modal-lg"> <!-- Larger modal size -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center w-100">UNO - Quick Start Guide</h5>
+        <button type="button" class="btn-close" aria-label="Close" onclick="closeHelpModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="help-container">
+          <!-- Objective Section -->
+          <div class="help-section" id="object">
+            <h6>Objective</h6>
+            <p>Be the first to play all your cards.</p>
+              <p>Win by being the first to reach 500 points after multiple rounds.</p>
+          </div>
+          
+          <!-- Setup Section -->
+          <div class="help-section" id="setup">
+            <h6>Setup</h6>
+            <ul>
+              <li>Deal 7 cards to each player.</li>
+              <li>Remaining cards form the DRAW PILE.</li>
+              <li>Turn over the top card to start the DISCARD PILE.</li>
+              <li>Play starts clockwise from the first player.</li>
+            </ul>
+          </div>
+
+          <!-- Gameplay Section -->
+          <div class="help-section" id="play">
+            <h6>Gameplay</h6>
+            <p>Match the DISCARD PILE card by color, number, or symbol.</p> 
+            <p>Draw if you can’t play.</p>
+          </div>
+
+          <!-- Card Types Section with Images -->
+          <div class="help-section" id="cards">
+            <h6>Card Types & Actions</h6>
+            <ul class="card-types">
+              <li><img src="imgs/Cards/Red1.png" alt="Number Card"> <strong>Number Cards</strong>: Match by color or number.</li>
+              <li><img src="imgs/Cards/Red11.png" alt="Skip Card"> <strong>Skip</strong>: Next player loses their turn.</li>
+              <li><img src="imgs/Cards/Red12.png" alt="Reverse Card"> <strong>Reverse</strong>: Reverses play direction.</li>
+              <li><img src="imgs/Cards/Red10.png" alt="Draw Two Card"> <strong>Draw Two</strong>: Next player draws 2 cards and skips their turn.</li>
+              <li><img src="imgs/Cards/Black14.png" alt="Wild Card"> <strong>Wild</strong>: Choose the next color.</li>
+              <li><img src="imgs/Cards/Black13.png" alt="Wild Draw Four Card"> <strong>Wild+4</strong>: Choose the next color and next player draws 4 cards.</li>
+            </ul>
+          </div>
+
+          <!-- Scoring Section -->
+          <div class="help-section" id="scoring">
+            <h6>Scoring</h6>
+            <p>Points are awarded based on the cards left in opponents' hands:</p>
+            <ul id="help-specialList">
+              <li>Number Cards: Face value</li>
+              <li>Draw Two, Reverse, Skip: 20 points each</li>
+              <li>Wild+4: 50 points each</li>
+            </ul>
+            <p>First to reach 500 points wins.</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- gives an error:
@@ -130,6 +171,8 @@
     //open the Help Modal
     function openHelpModal() {
       let helpModal = new bootstrap.Modal(document.getElementById('helpModal'));
+      let helpModalElement = document.getElementById('helpModal');
+      helpModalElement.classList.add('fade-in'); //the fade-in effect
       helpModal.show();
     }
 
@@ -141,11 +184,14 @@
     }
 
     //close modal if clicked outside of it
-    window.onclick = function(event) {
-      let helpModalElement = document.getElementById('helpModal');
-      if (event.target === helpModalElement) {
-        closeHelpModal();
-      }
+    function closeHelpModal() {
+    let helpModalElement = document.getElementById('helpModal');
+    let helpModal = bootstrap.Modal.getInstance(helpModalElement);
+    helpModalElement.classList.add('fade-out'); //fade-out effect
+    setTimeout(() => {
+      helpModal.hide();
+      helpModalElement.classList.remove('fade-out', 'fade-in'); // Reset fade-in/out effects
+    }, 300);
     }
   </script>
 
