@@ -394,12 +394,46 @@ h1 {
   .help-section h6 {
     font-size: 1.6rem; /* Smaller font size for compact view */
   }
-
+ 
   .card-types img {
     width: 2.5rem; /* Resize images for better fit on smaller screens */
   }
 }
 
+/* END GAME  */
+#scoreList {
+  list-style: none; /* Removes bullet points */
+  padding: 0;
+}
+
+#scoreList li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  border-bottom: 1px solid #ddd; /* Adds separation between items */
+  padding-bottom: 0.2rem;
+}
+
+#newRoundButton{
+  background-color: #fa7019;
+  border: none;
+  font-size: 14px;
+  padding: 8px 12px;
+  font-weight: bold;
+}
+
+#start-game,
+#start-game-new,
+#resetGameButton{
+  background-color: #ff4c4c;
+  border: none;
+  font-size: 14px;
+  padding: 8px 12px;
+  font-weight: bold;
+}
+
+#message {
+  font-weight: bold;
+}
 
 /* ---------- keyframes for css animations */
 
