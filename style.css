@@ -271,7 +271,7 @@ h1 {
 }
 
 .help-section h6::before {
-  content: '📚';
+  /* content: '📚'; */
   margin-right: 0.5rem;
 }
 
