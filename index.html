@@ -10,16 +10,25 @@
   <title>UNO</title>
 </head>
 
-<body class="container text-center">
+<div class="container text-center">
 
   <div id="top-section">
     <h1 class="my-4">Welcome to UNO!</h1>
     <!-- <button id="start-game" class="btn btn-primary mb-4" type="button" data-bs-toggle="modal"
       data-bs-target="#playerModal">Spiel starten</button> -->
-    <button id="start-game" type="button" class="btn btn-primary" onclick="submitPlayerNames()">START</button>
+    <button id="start-game" type="button" class="btn btn-primary" data-bs-toggle="modal"
+    data-bs-target="#playerModal" >START</button>
+    <div id="help-button-container-before">
+      <button id="help-button" type="button" class="btn btn-secondary" onclick="openHelpModal()">Help</button>
+    </div>
   </div>
 
-  <div id="game-info" class="border p-4 rounded">
+  <div id="game-info" class="border p-4 rounded" style="display: none;">
+  <div id="game-controls">
+    <!-- HERE FOR TESTING - REMOVE LATER OR? -->
+    <button id="start-game-new" type="button" class="btn btn-primary" onclick="startGame()">Start New Game</button>
+    <button id="help-button-game" type="button" class="btn btn-secondary" onclick="openHelpModal()">Help</button>
+  </div>
 
     <!-- Top Card and Draw Pile Section -->
     <div id="card-section" class="d-flex align-items-center">
@@ -52,7 +61,7 @@
   </div>
 
   <!-- Modal zum Eingeben der Spielernamen -->
-  <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true">
+  <div class="modal fade" id="playerModal" tabindex="-1" aria-labelledby="playerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -81,18 +90,134 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-          <button type="button" class="btn btn-secondary" id="change-players-btn" onclick="resetGame()">Change
-            players</button>
-          <button type="button" class="btn btn-primary" onclick="submitPlayerNames()">Spiel starten</button>
+          <button id="newRoundButton" type="button" class="btn btn-primary" onclick="submitPlayerNames()">Spiel starten</button>
         </div>
       </div>
     </div>
   </div>
+
+<!-- Help Modal -->
+<div class="modal" id="helpModal" tabindex="-1">
+  <div class="modal-dialog modal-lg"> <!-- Larger modal size -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center w-100">UNO - Schnellstartanleitung</h5>
+        <button type="button" class="btn-close" aria-label="Close" onclick="closeHelpModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="help-container">
+          <!-- Zielsetzung Section -->
+          <div class="help-section" id="object">
+            <h6>Zielsetzung</h6>
+            <p>Sei der Erste, der alle deine Karten ausspielt.</p>
+            <p>Gewinne, indem du als Erster 500 Punkte nach mehreren Runden erreichst.</p>
+          </div>
+          
+          <!-- Setup Section -->
+          <div class="help-section" id="setup">
+            <h6>Spielvorbereitung</h6>
+            <ul>
+              <li>Verteile 7 Karten an jeden Spieler.</li>
+              <li>Die restlichen Karten bilden den Ziehstapel.</li>
+              <li>Drehe die oberste Karte um, um den Ablagestapel zu starten.</li>
+              <li>Das Spiel beginnt im Uhrzeigersinn vom ersten Spieler aus.</li>
+            </ul>
+          </div>
+
+          <!-- Gameplay Section -->
+          <div class="help-section" id="play">
+            <h6>Spielablauf</h6>
+            <p>Stimme die Karte auf dem Ablagestapel nach Farbe, Zahl oder Symbol ab.</p>
+            <p>Ziehe eine Karte, wenn du nicht ablegen kannst.</p>
+          </div>
+
+          <!-- Card Types Section with Images -->
+          <div class="help-section" id="cards">
+            <h6>Kartentypen & Aktionen</h6>
+            <ul class="card-types">
+              <li><img src="imgs/Cards/Red1.png" alt="Number Card"> <strong>Zahlenkarten</strong>: Passe nach Farbe oder Zahl an.</li>
+              <li><img src="imgs/Cards/Red11.png" alt="Skip Card"> <strong>Aussetzen</strong>: Der nächste Spieler verliert seinen Zug.</li>
+              <li><img src="imgs/Cards/Red12.png" alt="Reverse Card"> <strong>Richtungswechsel</strong>: Ändert die Spielrichtung.</li>
+              <li><img src="imgs/Cards/Red10.png" alt="Draw Two Card"> <strong>Zieh Zwei</strong>: Der nächste Spieler zieht 2 Karten und setzt aus.</li>
+              <li><img src="imgs/Cards/Black14.png" alt="Wild Card"> <strong>Wild</strong>: Wähle die nächste Farbe.</li>
+              <li><img src="imgs/Cards/Black13.png" alt="Wild Draw Four Card"> <strong>Wild+4</strong>: Wähle die nächste Farbe und der nächste Spieler zieht 4 Karten.</li>
+            </ul>
+          </div>
+
+          <!-- Scoring Section -->
+          <div class="help-section" id="scoring">
+            <h6>Punktevergabe</h6>
+            <p>Punkte werden basierend auf den Karten in den Händen der Gegner vergeben:</p>
+            <ul id="help-specialList">
+              <li>Zahlenkarten: Entspricht dem Kartenwert</li>
+              <li>Zieh Zwei, Richtungswechsel, Aussetzen: 20 Punkte pro Karte</li>
+              <li>Joker+4: 50 Punkte pro Karte</li>
+            </ul>
+            <p>Wer zuerst 500 Punkte erreicht, gewinnt.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="winnerModal" tabindex="-1" aria-labelledby="winnerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header">
+        <h5 class="modal-title" id="winnerModalLabel">🎉 Gewinner 🎉</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h2 id="winnerName" class="text-success"></h2>
+        <p id="winnerType" class="fs-5 text-info"></p>
+        <p id="winnerScore" class="fs-4"></p>
+        <p class="fs-5 text-secondary">Aktualisierte Ergebnisse:</p>
+        <ul id="scoreList" class="list-group"></ul>
+      </div>
+      <div class="modal-footer d-flex justify-content-between">
+        <button id="newRoundButton" type="button" class="btn btn-primary" onclick="startNewRound()">Neue Runde starten</button>
+        <button id="resetGameButton" type="button" class="btn btn-secondary" onclick="resetGame()">Spiel neu starten</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- gives an error:
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="YvpcrYf0tY3JHB60NNKmXc5s9fDVZLESaAA55NDz0xhy9GkcIds1k1eJN7N6jIeHz" crossorigin="anonymous"></script> -->
+
+  <script>
+    //open the Help Modal
+    function openHelpModal() {
+      let helpModal = new bootstrap.Modal(document.getElementById('helpModal'));
+      let helpModalElement = document.getElementById('helpModal');
+      helpModalElement.classList.add('fade-in'); //the fade-in effect
+      helpModal.show();
+    }
+
+    //close the Help Modal
+    function closeHelpModal() {
+      let helpModalElement = document.getElementById('helpModal');
+      let helpModal = bootstrap.Modal.getInstance(helpModalElement);
+      helpModal.hide();
+    }
+
+    //close modal if clicked outside of it
+    function closeHelpModal() {
+    let helpModalElement = document.getElementById('helpModal');
+    let helpModal = bootstrap.Modal.getInstance(helpModalElement);
+    helpModalElement.classList.add('fade-out'); //fade-out effect
+    setTimeout(() => {
+      helpModal.hide();
+      helpModalElement.classList.remove('fade-out', 'fade-in'); // Reset fade-in/out effects
+    }, 300);
+    }
+  </script>
+
   <script src="game.js"></script>
 </body>
 

@@ -36,43 +36,43 @@ function checkUniqueNames() {
 
 // Starten eines neuen Spiel mit Spielernamen & initialisiert globale Variablen
 function submitPlayerNames() {
-    // submitting = true; //Prevents multiple submissions & indicated that a form submission is being attempted
+    submitting = true; //Prevents multiple submissions & indicated that a form submission is being attempted
 
-    // const player1 = document.getElementById('player1').value.trim();
-    // const player2 = document.getElementById('player2').value.trim();
-    // const player3 = document.getElementById('player3').value.trim();
-    // const player4 = document.getElementById('player4').value.trim();
+    const player1 = document.getElementById('player1').value.trim();
+    const player2 = document.getElementById('player2').value.trim();
+    const player3 = document.getElementById('player3').value.trim();
+    const player4 = document.getElementById('player4').value.trim();
 
-    // // Spieler-Namen in einem Array speichern
-    // playerNames = [player1, player2, player3, player4];
+    // Spieler-Namen in einem Array speichern
+    playerNames = [player1, player2, player3, player4];
 
-    playerNames = ['Melissa', 'Ajla', 'Sophia', 'Anja']; //THIS IS HARD CODED FOR TESTING-REMOVE IT WHEN NOT NEEDED
+    // playerNames = ['Melissa', 'Ajla', 'Sophia', 'Anja']; //THIS IS HARD CODED FOR TESTING-REMOVE IT WHEN NOT NEEDED
 
     // //Prepares the form for new validation
-    // document.getElementById('message').textContent = '';
+    document.getElementById('message').textContent = '';
 
-    // //Check if there is any empty fields
-    // if (playerNames.some(name => name === '')) {
-    //   document.getElementById('message').textContent = 'Bitte gib für alle Spieler einen Namen ein.';
-    //   submitting = false;  //Reset the flag because the form is not fully submitted
-    //   return;
-    // }
+    //Check if there is any empty fields
+    if (playerNames.some(name => name === '')) {
+        document.getElementById('message').textContent = 'Bitte gib für alle Spieler einen Namen ein.';
+        submitting = false;  //Reset the flag because the form is not fully submitted
+        return;
+    }
 
-    // //Double check the uniqueness
-    // const uniqueNames = new Set(players);
+    //Double check the uniqueness
+    const uniqueNames = new Set(playerNames);
 
-    // if (uniqueNames.size !== playerNames.length) {
-    //   document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
-    //   submitting = false;
-    //   return;
-    // }
-    // else {
-    //   document.getElementById('message').textContent = '';
-    // }
+    if (uniqueNames.size !== playerNames.length) {
+        document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
+        submitting = false;
+        return;
+    }
+    else {
+        document.getElementById('message').textContent = '';
+    }
 
-    // // Modal schließen
-    // const playerModal = bootstrap.Modal.getInstance(document.getElementById('playerModal'));
-    // playerModal.hide();
+    // Modal schließen
+    const playerModal = bootstrap.Modal.getInstance(document.getElementById('playerModal'));
+    playerModal.hide();
 
     // Startet das Spiel mit den eingegebenen Spielernamen
     startGame();
@@ -82,6 +82,18 @@ function submitPlayerNames() {
 // Reset the game and clear player inputs
 // resetGame() is called when the "Neues Spiel" button is clicked
 function resetGame() {
+    //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
+    //hide modals
+    const winnerModal = bootstrap.Modal.getInstance(document.getElementById('winnerModal'));
+    const playerModal = bootstrap.Modal.getInstance(document.getElementById('playerModal'));
+    if (winnerModal) winnerModal.hide();
+    if (playerModal) playerModal.hide();
+
+    //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
+    //remove modal backdrops
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    document.body.classList.remove('modal-open');
+
     //Clear each player input field
     document.getElementById('player1').value = '';
     document.getElementById('player2').value = '';
@@ -93,24 +105,51 @@ function resetGame() {
     playerNames = [];
     submitting = false;
     gameId = null;
-    globalResult = null;
+    globalResult = [];
     currentPlayer = null;
     selectedCard = null;
     playerIndexMap = {};
+    gameDirection = "clockwise";
 
-    document.getElementById('change-players-btn').style.display = 'block'; //Show the button to change players
+    //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
+    document.getElementById('top-section').style.display = 'block';
+    document.getElementById('game-info').style.display = 'none';
+    console.log("Spiel zurückgesetzt!");
+
+    submitPlayerNames();
 }
 
-// //Listener to check for all input changes in real time
-// document.getElementById('playerForm').addEventListener('input', checkUniqueNames);
+function startNewRound() {
+    //hide winner modal
+    const winnerModal = bootstrap.Modal.getInstance(document.getElementById('winnerModal'));
+    winnerModal.hide();
 
-// //Listener for Enter key in the form
-// document.getElementById('playerForm').addEventListener('keypress', function(event){
-//   if(event.key === 'Enter'){
-//     event.preventDefault(); //Prevent the form from submitting
-//     submitPlayerNames(); //Manually handle the form submission with validations
-//   }
-// });
+    //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
+    //remove any lingering modal backdrops
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    document.body.classList.remove('modal-open');
+
+    submitting = false;
+    gameId = null;
+    globalResult = [];
+    currentPlayer = null;
+    selectedCard = null;
+    gameDirection = "clockwise";
+
+    //startet das Spiel mit den eingegebenen Spielernamen
+    startGame();
+}
+
+//Listener to check for all input changes in real time
+document.getElementById('playerForm').addEventListener('input', checkUniqueNames);
+
+//Listener for Enter key in the form
+document.getElementById('playerForm').addEventListener('keypress', function(event){
+    if(event.key === 'Enter'){
+        event.preventDefault(); //Prevent the form from submitting
+        submitPlayerNames(); //Manually handle the form submission with validations
+    }
+});
 
 
 // Start new game: set gameId, card setup, currentPlayer
@@ -129,17 +168,26 @@ function startGame() {
             return response.json();
         })
         .then(gameData => {
+            document.getElementById('top-section').style.display = 'none'; //hide top section
+            document.getElementById('game-info').style.display = 'block'; //show game section
+            document.getElementById('game-controls').style.display = 'flex'; //show game controls
             if (!gameData || !gameData.Id || !gameData.Players || gameData.Players.length === 0) {
                 throw new Error("Ungültige Datenstruktur");
             }
 
             gameId = gameData.Id;
             globalResult = gameData.Players;
-            console.log(globalResult);
+            console.log("From server: ", globalResult);
             currentPlayer = gameData.NextPlayer;  // name of player who starts
-            console.log(currentPlayer);  // Check the value of currentPlayer
-            console.log("Next Player: " + gameData.NextPlayer);  // DELETE AGAIN
-            console.log("Current Player: " + currentPlayer);  // DELETE AGAIN
+            console.log("Current Player: ", currentPlayer);  // DELETE AGAIN
+
+            // Retain scores from the previous rounds
+            gameData.Players.forEach(player => {
+                const existingPlayer = globalResult.find(p => p.Player === player.Player);
+                if (existingPlayer) {
+                    player.Score = existingPlayer.Score;
+                }
+            });
 
             // Initialize player index map
             // "Melissa": 0,
@@ -151,7 +199,7 @@ function startGame() {
                 playerIndexMap[player.Player] = index;
             });
 
-            console.log(playerIndexMap);   // DELETE AGAIN
+            console.log("PlayersIndexMap: ", playerIndexMap);   // DELETE AGAIN
 
             document.getElementById('top-section').firstElementChild.innerHTML = '';
             document.getElementById('start-game').textContent = 'Start New Game';
@@ -159,12 +207,18 @@ function startGame() {
             gameinfo.style.display = 'block';
             gameinfo.style.backgroundImage = `url('imgs/table.jpg')`;
 
+            //display top card
+            const topCard = gameData.TopCard;
+            displayTopCard(topCard);
+
+            //check if the top card is "Reverse" and apply the effect
+            if (topCard.Text === 'Reverse') {
+                console.log("Initial top card is 'Reverse'. Changing game direction.");
+                changeDirection(); //reverse direction at the start
+            }
+
             displayPlayersCards();
-            displayTopCard();
             displayGameDirection();
-
-
-
         })
         .catch(error => console.error('Fehler beim Starten des Spiels:', error));
 }
@@ -309,6 +363,7 @@ function displayPlayersCards() {
 // display game direction
 function displayGameDirection() {
     let directionDiv = document.getElementById('game-direction');
+    directionDiv.innerHTML = ''; //clear existing content -> so the circle is not added multiple times
     let directionImg = document.createElement('img');
     directionImg.src = "imgs/clockwise.png";
     directionImg.alt = `${gameDirection}`;
@@ -393,12 +448,6 @@ async function playCard(event, wildColor = null) {
         return;
     }
 
-    //check if the card played is a "Reverse" card and change the direction before proceeding
-    if (serverValue === "Reverse") {
-        console.log("Reverse Card gespielt! Richtungswechsel.");
-        changeDirection();  //update the game direction visually and in the game state
-    }
-
     let topCard = await getTopCard();
     //convert top card value to local representation for comparison
     const topCardValueLocal = convertServerToLocal(topCard.Text);
@@ -450,27 +499,28 @@ async function playCard(event, wildColor = null) {
         console.log("Karte wurde gespielt!");
         console.log(result); //DELETE
 
-        if (serverValue === 'Skip') {
-            skipPlayer();
-        }
-        if (serverValue === 'Draw2') {
-            //the server already adds cards to the next player -> just need to skip that player's turn
-            console.log(`Der Spieler muss 2 Karten ziehen und wird übersprungen.`);
-            nextPlayer();
-        }
-        //UPDATE THE GAME STATE
         await updatePlayerCardsAndScore(currentPlayer);  //update cards of the current player
-        await displayTopCard();  //display the new top card after play
-        setTimeout(() => {
-            nextPlayer();  //determine the next player after the card is played
-            displayPlayersCards();  //update the player card displays
-        }, 800);
 
+        //TODO: Draw4, ChangeColor
+        handleSpecialCards(serverValue);  //handle special cards like Skip, Draw2, Reverse 
+        
+        //UPDATE THE GAME STATE
+        updateGameState();
 
     } catch (error) {
         console.error('Fehler beim Spielen einer Karte:', error);
         alert('Fehler beim Spielen der Karte!');
     }
+}
+
+
+async function updateGameState() {
+    await updatePlayerCardsAndScore(currentPlayer);
+    await displayTopCard();
+          setTimeout(() => {
+    nextPlayer();
+    displayPlayersCards();
+                    }, 800);
 }
 
 
@@ -482,16 +532,14 @@ function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
     if (cardColor === topCardColor) {
         return true;
     }
-
     if (cardValue === topCardValue) {
         return true;
     }
-
     if (cardColor === "Black") {
         return true;
     }
 
-    // Card does not match any valid criteria
+    //card does not match any valid criteria
     return false;
 }
 
@@ -504,13 +552,30 @@ function wrongCardAnimation(cardElement) {
 }
 
 
+//TODO: Draw4, ChangeColor
+async function handleSpecialCards(serverValue) {
+    if (serverValue === 'Skip') {
+        skipPlayer();
+    } else if (serverValue === 'Draw2') {
+        //the server already adds cards to the next player -> just need to skip that player's turn
+        console.log(`Der Spieler muss 2 Karten ziehen und seinen Zug verlieren.`);
+        nextPlayer();
+        await updatePlayerCardsAndScore(currentPlayer);
+    } else if (serverValue === "Reverse") {
+            console.log("Umgekehrte Karte gespielt! Richtungswechsel.");
+            changeDirection();  //update the game direction visually and in the game state
+    }
+}
+
+
 function skipPlayer() {
     nextPlayer();
     console.log("Spieler übersprungen! Neuer currentPlayer:", currentPlayer);
+    displayPlayersCards();
 }
 
-// let discarded card disapear
-// TODO: cooler animation --> card moves to discard pile
+
+// css animation: move discarded card to top-card stack
 function playCardAnimation(cardElement) {
 
     const topCardStack = document.getElementById("top-card");
@@ -551,8 +616,6 @@ function playCardAnimation(cardElement) {
 }
 
 
-
-// TODO: check if globalResult is changed --> selector????
 // update cards and score of active player after turn
 async function updatePlayerCardsAndScore(playerName) {
 
@@ -565,17 +628,32 @@ async function updatePlayerCardsAndScore(playerName) {
         },
     });
 
-    let apiResponseToUpdatePlayerCards = await response.json();
-    let playerIndex = playerIndexMap[playerName];
-    console.log('PlayerIndex: ', playerIndex);
+    if(response.ok) {
+        let apiResponseToUpdatePlayerCards = await response.json();
+        let playerIndex = playerIndexMap[playerName];
+        console.log('PlayerIndex: ', playerIndex);
 
+        if (playerIndex !== undefined) {
+            globalResult[playerIndex].Cards = apiResponseToUpdatePlayerCards.Cards;  //update cards
+            globalResult[playerIndex].Score = apiResponseToUpdatePlayerCards.Score;  // update score
+            console.log(`Updated cards for ${playerName}:`, globalResult[playerIndex].Cards); // Log updated cards
 
-
-    if (response.ok) {
-        globalResult[playerIndex].Cards = apiResponseToUpdatePlayerCards.Cards;  //update cards
-        globalResult[playerIndex].Score = apiResponseToUpdatePlayerCards.Score;  // update score
+            //check if the player has one or no cards left
+            let cardsRemaining = globalResult[playerIndex].Cards.length;
+            if (cardsRemaining === 1) {
+                console.log(`${playerName} has only one card left!`);
+                alert(`${playerName} has UNO!`); //TODO: CALL UNO FUNCTION?
+            } else if (cardsRemaining === 0) {
+                endGame(playerName);
+            }
+        } else {
+            console.error("Spielerindex nicht gefunden für: ", playerName);
+        }
+    } else {
+        console.error('Karten konnten nicht aktualisiert werden für:', playerName);
     }
 }
+
 
 //fetch the current top card
 async function getTopCard() {
@@ -589,7 +667,8 @@ async function getTopCard() {
     }
 }
 
-// Show top card
+
+// display current top card
 async function displayTopCard() {
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/TopCard/${gameId}`)
         .then(response => {
@@ -646,7 +725,7 @@ async function drawCard() {
 }
 
 
-// CSS Animation - draw card and append to currentPlayers deck
+// css animation: draw card and append to currentPlayers deck
 function addCardToDeckAnimation(result) {
 
     let drawPile = document.getElementById("draw-pile-card");
@@ -695,7 +774,7 @@ function addCardToDeckAnimation(result) {
 }
 
 
-// Funktion zum Abrufen der Kartenhand eines Spielers
+// get hand cards from player
 function getPlayerHand(gameId, playerName) {
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/GetCards/${gameId}?playerName=${playerName}`)
         .then(response => {
@@ -708,4 +787,99 @@ function getPlayerHand(gameId, playerName) {
             console.log(`Kartenhand von ${playerName}:`, hand);
         })
         .catch(error => console.error('Fehler beim Abrufen der Kartenhand:', error));
+
 }
+
+
+function endGame(winnerName) {
+    let totalPoints = 0;
+
+    //calculate points from other players' cards
+    globalResult.forEach(player => {
+        if (player.Player !== winnerName) {
+            player.Cards.forEach(card => {
+                const cardPoints = calculateCardPoints(card); //..for each card
+                totalPoints += cardPoints;
+                console.log(`Player: ${player.Player}, Card: ${card.Text}, Points: ${cardPoints}`); //DELETE
+            });
+
+            //reset the current round's points for this player
+            console.log(`Resetting cards for ${player.Player}. Previous score: ${player.Score}`);
+            player.Cards = []; //clear their cards to not affect their cumulative score
+        }
+    });
+
+    //add total points to the winner's score
+    let winner = globalResult.find(player => player.Player === winnerName);
+    if (winner) {
+        winner.Score += totalPoints;
+        console.log(`${winnerName} gewinnt diese Runde und erhält ${totalPoints} Punkte! Gesamtpunktzahl: ${winner.Score}`);
+    }
+
+    //is winner a round or overall winner
+    const isOverallWinner = winner.Score >= 500;
+
+    //UPDATE MODAL CONTENT
+    const modalTitle = document.getElementById('winnerModalLabel');
+    const winnerNameElement = document.getElementById('winnerName');
+    const winnerTypeElement = document.getElementById('winnerType');
+    const winnerScoreElement = document.getElementById('winnerScore');
+    const scoreList = document.getElementById('scoreList');
+    const newRoundButton = document.getElementById('newRoundButton');
+
+    //modal title and buttons
+    modalTitle.textContent = isOverallWinner ? '🏆 Gewinner des Spiels 🏆' : '🎉 Rundengewinner 🎉';
+    newRoundButton.style.display = isOverallWinner ? 'none' : 'block'; //hide "New Round" for overall winner
+
+    //winner details
+    winnerNameElement.textContent = winnerName;
+    winnerTypeElement.textContent = isOverallWinner ? 'Herzlichen Glückwunsch zum Gewinn des Spiels!' : 'Du hast diese Runde gewonnen!';
+    winnerScoreElement.textContent = `Gesamtpunktzahl: ${winner.Score}`;
+
+    //display updated scores
+    scoreList.innerHTML = '';
+    globalResult.forEach(player => {
+        const li = document.createElement('li');
+        li.textContent = `${player.Player}: ${player.Score} Punkte`;
+        scoreList.appendChild(li);
+    });
+
+    //show modal
+    const winnerModal = new bootstrap.Modal(document.getElementById('winnerModal'));
+    winnerModal.show();
+
+    //reset the game if overall win
+    if (isOverallWinner) {
+        resetGame();
+    }
+}
+
+//calculate points for cards
+function calculateCardPoints(cards) {
+    const cardValues = {
+        'Zero': 0,
+        'One': 1,
+        'Two': 2,
+        'Three': 3,
+        'Four': 4,
+        'Five': 5,
+        'Six': 6,
+        'Seven': 7,
+        'Eight': 8,
+        'Nine': 9,
+        'Draw2': 20,
+        'Skip': 20,
+        'Reverse': 20,
+        'Draw4': 50,
+        'ChangeColor': 50
+    };
+
+    return cardValues[cards.Text] || 0;
+}
+
+
+//display each players score
+function displayScores() {
+    return globalResult.map(player => `${player.Player}: ${player.Score} Punkte`).join('\n');
+}
+
