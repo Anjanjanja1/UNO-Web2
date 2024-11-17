@@ -472,8 +472,7 @@ async function playCard(event, wildColor = null) {
     console.log('gameId:', gameId);
     console.log('wildColor:', wildColor);
 
-    // ToDo: Add CSS Animation
-    animateCard(event.target);
+    playCardAnimation(event.target); // css animation
 
     let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}&wildColor=${wildColor}`;
 
@@ -514,12 +513,16 @@ async function playCard(event, wildColor = null) {
     }
 }
 
+
 async function updateGameState() {
     await updatePlayerCardsAndScore(currentPlayer);
     await displayTopCard();
+          setTimeout(() => {
     nextPlayer();
     displayPlayersCards();
+                    }, 800);
 }
+
 
 //card validity
 function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
@@ -568,18 +571,48 @@ function skipPlayer() {
     displayPlayersCards();
 }
 
-// let discarded card disapear
-// TODO: cooler animation --> card moves to discard pile
-function animateCard(cardElement) {
-    cardElement.classList.add('card-animate');
+
+// css animation: move discarded card to top-card stack
+function playCardAnimation(cardElement) {
+
+    const topCardStack = document.getElementById("top-card");
+
+    // start and destination positions
+    const cardRect = cardElement.getBoundingClientRect();
+    const stackRect = topCardStack.getBoundingClientRect();
+
+    // calculate difference between start & destination
+    const moveX = stackRect.left + window.scrollX + stackRect.width / 2 - (cardRect.left + window.scrollX + cardRect.width / 2);
+    const moveY = stackRect.top + window.scrollY + stackRect.height / 2 - (cardRect.top + window.scrollY + cardRect.height / 2);
+
+    // set css variables for moving card and add class for animation
+    cardElement.style.setProperty('--move-x', `${moveX}px`);
+    cardElement.style.setProperty('--move-y', `${moveY}px`);
+
+    // Sicherstellen, dass die Karte absolut positioniert ist
+    cardElement.style.position = 'absolute';
+    cardElement.style.zIndex = '10';
+
+    // Ausgangsposition setzen
+    cardElement.style.top = `${cardRect.top + window.scrollY}px`;
+    cardElement.style.left = `${cardRect.left + window.scrollX}px`;
+
+    cardElement.classList.add('played-card');
+
     setTimeout(() => {
-        cardElement.classList.remove('card-animate');
-        displayPlayersCards();  //update the player card displays
-    }, 1000);
+        // end animation, fix card on stack
+        cardElement.classList.remove('played-card');
+        cardElement.style.position = 'static';
+        cardElement.style.zIndex = '';
+        // add card to stack div
+        topCardStack.innerHTML = "";  // delete old top card
+        topCardStack.appendChild(cardElement);  // add new top card
+
+        //displayPlayersCards();
+    }, 600);
 }
 
 
-// TODO: check if globalResult is changed --> selector????
 // update cards and score of active player after turn
 async function updatePlayerCardsAndScore(playerName) {
 
@@ -618,6 +651,7 @@ async function updatePlayerCardsAndScore(playerName) {
     }
 }
 
+
 //fetch the current top card
 async function getTopCard() {
     const response = await fetch(`https://nowaunoweb.azurewebsites.net/api/Game/TopCard/${gameId}`);
@@ -630,7 +664,8 @@ async function getTopCard() {
     }
 }
 
-// Show top card
+
+// display current top card
 async function displayTopCard() {
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/TopCard/${gameId}`)
         .then(response => {
@@ -675,7 +710,7 @@ async function drawCard() {
         console.log('Karte wurde gezogen:', result);
 
         console.log('Karte wurde gezogen:', drawCard);
-        addCardToDeck(result); // start css animation
+        addCardToDeckAnimation(result); // start css animation
         updatePlayerCardsAndScore(currentPlayer);  //update cards and score of the current player
         setTimeout(() => {
             currentPlayer = result.NextPlayer; // change player after turn
@@ -687,8 +722,8 @@ async function drawCard() {
 }
 
 
-// CSS Animation - draw card and append to currentPlayers deck
-function addCardToDeck(result) {
+// css animation: draw card and append to currentPlayers deck
+function addCardToDeckAnimation(result) {
 
     let drawPile = document.getElementById("draw-pile-card");
     let newCard = document.createElement("img");
@@ -736,7 +771,7 @@ function addCardToDeck(result) {
 }
 
 
-// Funktion zum Abrufen der Kartenhand eines Spielers
+// get hand cards from player
 function getPlayerHand(gameId, playerName) {
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/GetCards/${gameId}?playerName=${playerName}`)
         .then(response => {
