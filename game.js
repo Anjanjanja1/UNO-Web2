@@ -395,7 +395,7 @@ async function playCard(event, wildColor = null) {
 
     //check if the card played is a "Reverse" card and change the direction before proceeding
     if (serverValue === "Reverse") {
-        console.log("Umgekehrte Karte gespielt! Richtungswechsel.");
+        console.log("Reverse Card gespielt! Richtungswechsel.");
         changeDirection();  //update the game direction visually and in the game state
     }
 
@@ -423,8 +423,7 @@ async function playCard(event, wildColor = null) {
     console.log('gameId:', gameId);
     console.log('wildColor:', wildColor);
 
-    // ToDo: Add CSS Animation
-    animateCard(event.target);
+    playCardAnimation(event.target); // css animation
 
     let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}&wildColor=${wildColor}`;
 
@@ -456,21 +455,24 @@ async function playCard(event, wildColor = null) {
         }
         if (serverValue === 'Draw2') {
             //the server already adds cards to the next player -> just need to skip that player's turn
-            console.log(`Der Spieler muss 2 Karten ziehen und seinen Zug verlieren.`);
+            console.log(`Der Spieler muss 2 Karten ziehen und wird übersprungen.`);
             nextPlayer();
         }
         //UPDATE THE GAME STATE
         await updatePlayerCardsAndScore(currentPlayer);  //update cards of the current player
         await displayTopCard();  //display the new top card after play
-        displayPlayersCards();  //update the player card displays
-        nextPlayer();  //determine the next player after the card is played
-        displayPlayersCards();  //update the player card displays
+        setTimeout(() => {
+            nextPlayer();  //determine the next player after the card is played
+            displayPlayersCards();  //update the player card displays
+        }, 800);
+
 
     } catch (error) {
         console.error('Fehler beim Spielen einer Karte:', error);
         alert('Fehler beim Spielen der Karte!');
     }
 }
+
 
 //card validity
 function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
@@ -493,12 +495,14 @@ function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
     return false;
 }
 
+
 function wrongCardAnimation(cardElement) {
     cardElement.classList.add('wrong-card');
     setTimeout(() => {
         cardElement.classList.remove('wrong-card');
     }, 2000);  //animation lasts for 2 seconds
 }
+
 
 function skipPlayer() {
     nextPlayer();
@@ -507,13 +511,45 @@ function skipPlayer() {
 
 // let discarded card disapear
 // TODO: cooler animation --> card moves to discard pile
-function animateCard(cardElement) {
-    cardElement.classList.add('card-animate');
+function playCardAnimation(cardElement) {
+
+    const topCardStack = document.getElementById("top-card");
+
+    // start and destination positions
+    const cardRect = cardElement.getBoundingClientRect();
+    const stackRect = topCardStack.getBoundingClientRect();
+
+    // calculate difference between start & destination
+    const moveX = stackRect.left + window.scrollX + stackRect.width / 2 - (cardRect.left + window.scrollX + cardRect.width / 2);
+    const moveY = stackRect.top + window.scrollY + stackRect.height / 2 - (cardRect.top + window.scrollY + cardRect.height / 2);
+
+    // set css variables for moving card and add class for animation
+    cardElement.style.setProperty('--move-x', `${moveX}px`);
+    cardElement.style.setProperty('--move-y', `${moveY}px`);
+
+    // Sicherstellen, dass die Karte absolut positioniert ist
+    cardElement.style.position = 'absolute';
+    cardElement.style.zIndex = '10';
+
+    // Ausgangsposition setzen
+    cardElement.style.top = `${cardRect.top + window.scrollY}px`;
+    cardElement.style.left = `${cardRect.left + window.scrollX}px`;
+
+    cardElement.classList.add('played-card');
+
     setTimeout(() => {
-        cardElement.classList.remove('card-animate');
-        displayPlayersCards();  //update the player card displays
-    }, 1000);
+        // end animation, fix card on stack
+        cardElement.classList.remove('played-card');
+        cardElement.style.position = 'static';
+        cardElement.style.zIndex = '';
+        // add card to stack div
+        topCardStack.innerHTML = "";  // delete old top card
+        topCardStack.appendChild(cardElement);  // add new top card
+
+        //displayPlayersCards();
+    }, 600);
 }
+
 
 
 // TODO: check if globalResult is changed --> selector????
@@ -598,7 +634,7 @@ async function drawCard() {
         console.log('Karte wurde gezogen:', result);
 
         console.log('Karte wurde gezogen:', drawCard);
-        addCardToDeck(result); // start css animation
+        addCardToDeckAnimation(result); // start css animation
         updatePlayerCardsAndScore(currentPlayer);  //update cards and score of the current player
         setTimeout(() => {
             currentPlayer = result.NextPlayer; // change player after turn
@@ -611,7 +647,7 @@ async function drawCard() {
 
 
 // CSS Animation - draw card and append to currentPlayers deck
-function addCardToDeck(result) {
+function addCardToDeckAnimation(result) {
 
     let drawPile = document.getElementById("draw-pile-card");
     let newCard = document.createElement("img");
