@@ -543,14 +543,12 @@ function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
     return false;
 }
 
-
 function wrongCardAnimation(cardElement) {
     cardElement.classList.add('wrong-card');
     setTimeout(() => {
         cardElement.classList.remove('wrong-card');
     }, 2000);  //animation lasts for 2 seconds
 }
-
 
 //TODO: Draw4, ChangeColor
 async function handleSpecialCards(serverValue) {
@@ -566,7 +564,6 @@ async function handleSpecialCards(serverValue) {
             changeDirection();  //update the game direction visually and in the game state
     }
 }
-
 
 function skipPlayer() {
     nextPlayer();
@@ -787,9 +784,7 @@ function getPlayerHand(gameId, playerName) {
             console.log(`Kartenhand von ${playerName}:`, hand);
         })
         .catch(error => console.error('Fehler beim Abrufen der Kartenhand:', error));
-
 }
-
 
 function endGame(winnerName) {
     let totalPoints = 0;
@@ -800,12 +795,7 @@ function endGame(winnerName) {
             player.Cards.forEach(card => {
                 const cardPoints = calculateCardPoints(card); //..for each card
                 totalPoints += cardPoints;
-                console.log(`Player: ${player.Player}, Card: ${card.Text}, Points: ${cardPoints}`); //DELETE
             });
-
-            //reset the current round's points for this player
-            console.log(`Resetting cards for ${player.Player}. Previous score: ${player.Score}`);
-            player.Cards = []; //clear their cards to not affect their cumulative score
         }
     });
 
@@ -816,42 +806,17 @@ function endGame(winnerName) {
         console.log(`${winnerName} gewinnt diese Runde und erhält ${totalPoints} Punkte! Gesamtpunktzahl: ${winner.Score}`);
     }
 
-    //is winner a round or overall winner
-    const isOverallWinner = winner.Score >= 500;
-
     //UPDATE MODAL CONTENT
-    const modalTitle = document.getElementById('winnerModalLabel');
     const winnerNameElement = document.getElementById('winnerName');
-    const winnerTypeElement = document.getElementById('winnerType');
     const winnerScoreElement = document.getElementById('winnerScore');
-    const scoreList = document.getElementById('scoreList');
-    const newRoundButton = document.getElementById('newRoundButton');
-
-    //modal title and buttons
-    modalTitle.textContent = isOverallWinner ? '🏆 Gewinner des Spiels 🏆' : '🎉 Rundengewinner 🎉';
-    newRoundButton.style.display = isOverallWinner ? 'none' : 'block'; //hide "New Round" for overall winner
 
     //winner details
     winnerNameElement.textContent = winnerName;
-    winnerTypeElement.textContent = isOverallWinner ? 'Herzlichen Glückwunsch zum Gewinn des Spiels!' : 'Du hast diese Runde gewonnen!';
     winnerScoreElement.textContent = `Gesamtpunktzahl: ${winner.Score}`;
-
-    //display updated scores
-    scoreList.innerHTML = '';
-    globalResult.forEach(player => {
-        const li = document.createElement('li');
-        li.textContent = `${player.Player}: ${player.Score} Punkte`;
-        scoreList.appendChild(li);
-    });
 
     //show modal
     const winnerModal = new bootstrap.Modal(document.getElementById('winnerModal'));
     winnerModal.show();
-
-    //reset the game if overall win
-    if (isOverallWinner) {
-        resetGame();
-    }
 }
 
 //calculate points for cards
@@ -876,10 +841,3 @@ function calculateCardPoints(cards) {
 
     return cardValues[cards.Text] || 0;
 }
-
-
-//display each players score
-function displayScores() {
-    return globalResult.map(player => `${player.Player}: ${player.Score} Punkte`).join('\n');
-}
-

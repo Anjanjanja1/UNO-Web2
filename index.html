@@ -12,6 +12,7 @@
 
 <div class="container text-center">
 
+  <!-- START OF THE GAME -->
   <div id="top-section">
     <h1 class="my-4">Welcome to UNO!</h1>
     <!-- <button id="start-game" class="btn btn-primary mb-4" type="button" data-bs-toggle="modal"
@@ -23,12 +24,12 @@
     </div>
   </div>
 
+  <!-- WHEN THE GAME IS RUNNING AND AFTER THE ROUND ENDS -->
   <div id="game-info" class="border p-4 rounded" style="display: none;">
-    <div id="game-controls">
-      <!-- HERE FOR TESTING - REMOVE LATER OR? -->
-      <button id="start-game-new" type="button" class="btn btn-primary" onclick="startGame()">Start New Game</button>
-      <button id="help-button-game" type="button" class="btn btn-secondary" onclick="openHelpModal()">Help</button>
-    </div>
+  <div id="game-controls">
+    <button id="start-game-new" type="button" class="btn btn-primary" onclick="startGame()">Start New Game</button>
+    <button id="help-button-game" type="button" class="btn btn-secondary" onclick="openHelpModal()">Help</button>
+  </div>
 
     <!-- Top Card and Draw Pile Section -->
     <div id="card-section" class="d-flex align-items-center">
@@ -171,30 +172,23 @@
     </div>
   </div>
 
-  <div class="modal fade" id="winnerModal" tabindex="-1" aria-labelledby="winnerModalLabel" aria-hidden="true"
-    data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content text-center">
-        <div class="modal-header">
-          <h5 class="modal-title" id="winnerModalLabel">🎉 Gewinner 🎉</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <h2 id="winnerName" class="text-success"></h2>
-          <p id="winnerType" class="fs-5 text-info"></p>
-          <p id="winnerScore" class="fs-4"></p>
-          <p class="fs-5 text-secondary">Aktualisierte Ergebnisse:</p>
-          <ul id="scoreList" class="list-group"></ul>
-        </div>
-        <div class="modal-footer d-flex justify-content-between">
-          <button id="newRoundButton" type="button" class="btn btn-primary" onclick="startNewRound()">Neue Runde
-            starten</button>
-          <button id="resetGameButton" type="button" class="btn btn-secondary" onclick="resetGame()">Spiel neu
-            starten</button>
-        </div>
+<div class="modal fade" id="winnerModal" tabindex="-1" aria-labelledby="winnerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header">
+        <h5 class="modal-title" id="winnerModalLabel">🎉 Gewinner 🎉</h5>
+      </div>
+      <div class="modal-body">
+        <h2 id="winnerName" class="text-success"></h2>
+        <p id="winnerScore" class="fs-4"></p>
+      </div>
+      <div class="modal-footer d-flex justify-content-between">
+        <button id="newRoundButton" type="button" class="btn btn-primary" onclick="startNewRound()">Neue Runde starten</button>
+        <button id="resetGameButton" type="button" class="btn btn-secondary" onclick="resetGame()">Spiel neu starten</button>
       </div>
     </div>
   </div>
+ </div>
 
 
 
