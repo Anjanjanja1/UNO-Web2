@@ -642,6 +642,7 @@ async function updatePlayerCardsAndScore(playerName) {
                 alert(`${playerName} has UNO!`); //TODO: CALL UNO FUNCTION?
             } else if (cardsRemaining === 0) {
                 endGame(playerName);
+                startUnoCardsAnimation();
             }
         } else {
             console.error("Spielerindex nicht gefunden für: ", playerName);
@@ -840,4 +841,39 @@ function calculateCardPoints(cards) {
     };
 
     return cardValues[cards.Text] || 0;
+}
+
+// Endgame Uno Animation
+function startUnoCardsAnimation() {
+    let myElem = document.getElementById("game-info"); 
+  
+    // Array mit den Pfaden zu verschiedenen Karten
+    const cardImages = [
+        "imgs/Cards/back0.png",
+        "imgs/Cards/Blue6.png",
+        "imgs/Cards/Black14.png",
+        "imgs/Cards/Yellow0.png",
+        "imgs/Cards/Green6.png",
+        "imgs/Cards/Red5.png",
+        "imgs/Cards/back0.png",
+        "imgs/Cards/back0.png"
+    ];
+  
+    const divCards = document.createElement("div");
+    divCards.id = "uno-cards";
+    myElem.appendChild(divCards);
+
+    for (let i = 0; i < 10; i++) {
+        const divElem = document.createElement("div");
+        divElem.classList.add("uno-card");
+
+        const randomImage = cardImages[Math.floor(Math.random() * cardImages.length)];
+        divElem.style.backgroundImage = `url('${randomImage}')`;
+        divCards.appendChild(divElem);
+    }
+// 15 Sek Timer
+    setTimeout(() => {
+        divCards.remove();
+        console.log("UNO-Karten Animation gestoppt.");
+    }, 15000);
 }
