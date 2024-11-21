@@ -144,8 +144,8 @@ function startNewRound() {
 document.getElementById('playerForm').addEventListener('input', checkUniqueNames);
 
 //Listener for Enter key in the form
-document.getElementById('playerForm').addEventListener('keypress', function(event){
-    if(event.key === 'Enter'){
+document.getElementById('playerForm').addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
         event.preventDefault(); //Prevent the form from submitting
         submitPlayerNames(); //Manually handle the form submission with validations
     }
@@ -503,7 +503,7 @@ async function playCard(event, wildColor = null) {
 
         //TODO: Draw4, ChangeColor
         handleSpecialCards(serverValue);  //handle special cards like Skip, Draw2, Reverse 
-        
+
         //UPDATE THE GAME STATE
         updateGameState();
 
@@ -517,10 +517,10 @@ async function playCard(event, wildColor = null) {
 async function updateGameState() {
     await updatePlayerCardsAndScore(currentPlayer);
     await displayTopCard();
-          setTimeout(() => {
-    nextPlayer();
-    displayPlayersCards();
-                    }, 800);
+    setTimeout(() => {
+        nextPlayer();
+        displayPlayersCards();
+    }, 800);
 }
 
 
@@ -554,21 +554,21 @@ function wrongCardAnimation(cardElement) {
 async function handleSpecialCards(serverValue) {
     if (serverValue === 'Skip') {
         skipPlayer();
+        // sTODO: display skipPlayer Popup here
     } else if (serverValue === 'Draw2') {
         //the server already adds cards to the next player -> just need to skip that player's turn
         console.log(`Der Spieler muss 2 Karten ziehen und seinen Zug verlieren.`);
         nextPlayer();
         await updatePlayerCardsAndScore(currentPlayer);
     } else if (serverValue === "Reverse") {
-            console.log("Umgekehrte Karte gespielt! Richtungswechsel.");
-            changeDirection();  //update the game direction visually and in the game state
+        console.log("Umgekehrte Karte gespielt! Richtungswechsel.");
+        changeDirection();  //update the game direction visually and in the game state
     }
 }
 
 function skipPlayer() {
     nextPlayer();
     console.log("Spieler übersprungen! Neuer currentPlayer:", currentPlayer);
-    displayPlayersCards();
 }
 
 
@@ -625,7 +625,7 @@ async function updatePlayerCardsAndScore(playerName) {
         },
     });
 
-    if(response.ok) {
+    if (response.ok) {
         let apiResponseToUpdatePlayerCards = await response.json();
         let playerIndex = playerIndexMap[playerName];
         console.log('PlayerIndex: ', playerIndex);
@@ -845,8 +845,8 @@ function calculateCardPoints(cards) {
 
 // Endgame Uno Animation
 function startUnoCardsAnimation() {
-    let myElem = document.getElementById("game-info"); 
-  
+    let myElem = document.getElementById("game-info");
+
     // Array mit den Pfaden zu verschiedenen Karten
     const cardImages = [
         "imgs/Cards/back0.png",
@@ -858,7 +858,7 @@ function startUnoCardsAnimation() {
         "imgs/Cards/back0.png",
         "imgs/Cards/back0.png"
     ];
-  
+
     const divCards = document.createElement("div");
     divCards.id = "uno-cards";
     myElem.appendChild(divCards);
@@ -871,7 +871,7 @@ function startUnoCardsAnimation() {
         divElem.style.backgroundImage = `url('${randomImage}')`;
         divCards.appendChild(divElem);
     }
-// 15 Sek Timer
+    // 15 Sek Timer
     setTimeout(() => {
         divCards.remove();
         console.log("UNO-Karten Animation gestoppt.");
