@@ -152,15 +152,6 @@ h1 {
 }
 
 /* Modal Styling */
-.modal {
-  z-index: 1100; /* Above backdrop */
-}
-
-.modal-backdrop {
-  z-index: 1099; /* Below modal */
-}
-
-/* Modal Header */
 .modal-header {
   background: linear-gradient(45deg, #ff9800, #f44336);
   color: #ffffff;
@@ -513,8 +504,9 @@ h1 {
   height: 100%;
   width: 100%;
   top: 0;
-  left: 0;
-  z-index: 900; 
+  left: 0; 
+  z-index: 1040;
+  pointer-events: none;
 }
 
 .uno-card {

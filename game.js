@@ -87,6 +87,12 @@ function submitPlayerNames() {
     startGame();
 }
 
+//Remove any leftover modal backdrops and reset the body class to avoid modal issues
+function removeBackdrop() {
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    document.body.classList.remove('modal-open');
+}
+
 //Reset the game and clear all player inputs
 //resetGame() is called when the "Neues Spiel" button is clicked
 function resetGame() {
@@ -98,9 +104,7 @@ function resetGame() {
     if (playerModal) playerModal.hide(); //Hide the player modal if it is open
 
     //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
-    //Remove any leftover modal backdrops and reset the body class to avoid modal issues
-    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-    document.body.classList.remove('modal-open');
+    removeBackdrop(); //Remove any leftover modal backdrops
 
     //Clear all player input fields to allow fresh input for a new game
     document.getElementById('player1').value = '';
@@ -138,9 +142,7 @@ function startNewRound() {
     winnerModal.hide();
 
     //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
-    //Remove lingering modal backdrops and reset body class to avoid modal issues
-    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-    document.body.classList.remove('modal-open');
+    removeBackdrop(); //Remove any leftover modal backdrops
 
     //Reset game state variables
     gameId = null;
@@ -503,7 +505,7 @@ async function playCard(event, wildColor = null) {
         console.log("Karte wurde gespielt!"); 
         console.log(result);
 
-        await updatePlayerCardsAndScore(currentPlayer);  //Update the current player's cards and score
+        await updatePlayerCardsAndScore(currentPlayer);  //Update the player's cards and score
 
         //TODO: Draw4, ChangeColor
         handleSpecialCards(serverValue);  //Process any special card effects (e.g., Skip, Draw2, Reverse)
@@ -519,7 +521,6 @@ async function playCard(event, wildColor = null) {
 
 //Update the game state after a card is played
 async function updateGameState() {
-    await updatePlayerCardsAndScore(currentPlayer); //Update the current player's cards and score
     await displayTopCard(); //Display the updated top card on the game interface
     
     //Wait briefly before moving to the next player and updating the display
@@ -827,15 +828,15 @@ function endGame(winnerName) {
     winnerNameElement.textContent = winnerName;
     winnerScoreElement.textContent = `Gesamtpunktzahl: ${winner.Score}`;
 
-    //Trigger the falling cards animation for the winner's celebration
-    startUnoCardsAnimation(); 
-
     //Display the winner modal immediately 
     const winnerModal = new bootstrap.Modal(document.getElementById('winnerModal'));
     winnerModal.show();
+    console.log("Winner modal should now be visible."); //DEBUG
 
-    //Lower the opacity of the game area while the winner modal is active
-    document.getElementById("uno-cards").style.opacity = "0.5";
+    //Trigger the falling cards animation for the winner's celebration
+    setTimeout(() => {
+        startUnoCardsAnimation();
+    }, 500); //Slight delay to ensure modal is fully visible
 }
 
 //Calculate the points for a single card
@@ -863,7 +864,7 @@ function calculateCardPoints(cards) {
 
 //Start the Uno cards animation at the end of the game
 function startUnoCardsAnimation() {
-    let myElem = document.getElementById("game-info");
+    let myElem = document.body; //Use body for global animation overlay
 
     //Array of card image paths
     const cardImages = [
