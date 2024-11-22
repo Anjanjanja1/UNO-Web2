@@ -1,28 +1,31 @@
+/* Importing Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap');
 
+/* Base Styles */
 body {
   font-family: 'Baloo 2', sans-serif;
-  display: flex;
+  display: flex; 
   flex-direction: column;
   align-items: center;
 }
 
 h1 {
-  color: #333;
+  color: #333; 
   margin-top: 20px;
 }
 
+/* Game Info Section */
 #game-info {
   display: none;
   margin-top: 20px;
   margin-bottom: 20px;
   width: 100%;
-  /* max-width: 900px; */
   background-size: cover;
   background-position: center;
   border-radius: 20px;
 }
 
+/* Player Section */
 .player-section {
   margin-bottom: 20px;
   padding: 10px;
@@ -40,12 +43,11 @@ h1 {
 
 .player-section .active {
   margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6),
-    /* Weiches Leuchten */
-    0 0 25px rgba(255, 255, 255, 0.4);
+  border-radius: 8px; 
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), /* Soft glow */
+              0 0 25px rgba(255, 255, 255, 0.4);
   padding: 10px;
-  background-color: #fffbbe;
+  background-color: #fffbbe; /* Highlight active player */
 }
 
 .player-cards-container {
@@ -55,6 +57,7 @@ h1 {
   justify-content: center;
 }
 
+/* Game Direction Indicator */
 #game-direction {
   margin-left: auto;
   margin-right: auto;
@@ -66,26 +69,21 @@ h1 {
   animation: rotate-scale-up 0.7s linear both;
 }
 
-.active-card {
+/* Card Styles */
+.active-card, .inactive-card {
   width: 60px;
   margin: 5px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
 }
 
-.inactive-card {
-  width: 60px;
-  margin: 5px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
-}
-
+/* Hover effect for active cards */
 .player-cards-container .active-card:hover {
   cursor: pointer;
   transform: scale(1.5);
 }
 
-
+/* Card Section Layout */
 #card-section {
   display: flex;
   justify-content: center;
@@ -94,23 +92,11 @@ h1 {
   margin-top: 20px;
 }
 
-#top-card-section {
+#top-card-section, #draw-pile-section {
   margin-top: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-#draw-pile-section {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-#card-section {
-  display: flex;
-  gap: 20px;
 }
 
 #top-card-section img,
@@ -128,6 +114,7 @@ h1 {
   transition: transform 0.2s ease-in-out;
 }
 
+/* Action Buttons */
 #actions {
   display: flex;
   gap: 10px;
@@ -139,23 +126,23 @@ h1 {
   display: none;
 }
 
+/* Played Card Animation */
 .played-card {
-  /* for moving card */
-  position: absolute;
+  position: absolute; /* Allow card to move */
   animation: moveToTopCardStack 0.6s ease-out forwards;
 }
 
 .wrong-card {
-  animation: shake 0.5s ease-in-out;
+  animation: shake 0.5s ease-in-out; /* Shake animation for invalid moves */
 }
 
+/* New Card Animation */
 .new-card {
   width: 60px;
   margin: 5px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
-  /* for moving card */
-  position: absolute;
+  position: absolute; /* Allow card to move */
   top: 0;
   left: 0;
   /* animation properties */
@@ -164,9 +151,18 @@ h1 {
   z-index: 1000;
 }
 
-/* Enhanced Help Modal Header */
+/* Modal Styling */
+.modal {
+  z-index: 1100; /* Above backdrop */
+}
+
+.modal-backdrop {
+  z-index: 1099; /* Below modal */
+}
+
+/* Modal Header */
 .modal-header {
-  background: linear-gradient(45deg, #ff9800, #f44336); /* Eye-catching gradient */
+  background: linear-gradient(45deg, #ff9800, #f44336);
   color: #ffffff;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
@@ -181,7 +177,7 @@ h1 {
   text-align: center;
 }
 
-/* Close Button Style */
+/* Close Button */
 .btn-close {
   background-color: #ffffff;
   border: none;
@@ -194,7 +190,7 @@ h1 {
   transform: scale(1.1);
 }
 
-/* Help Button Container */
+/* Help Section */
 #help-button-container-before {
   margin-top: 10px;
   text-align: center;
@@ -220,7 +216,7 @@ h1 {
   padding: 8px 12px;
 }
 
-/* Modal Content Styling */
+
 .modal-content {
   background-color: #1d0c06; 
   color: #ffffff; 
@@ -233,6 +229,7 @@ h1 {
   padding: 1.25rem;
 }
 
+/* Help Modal Content */
 .help-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -263,14 +260,13 @@ h1 {
 
 .help-section h6 {
   font-size: 1.8rem;
-  color: #ffffff; /*optional: #fa7019 😊*/
+  color: #ffffff;
   margin-bottom: 1rem;
   text-align: center;
   font-weight: bold;
 }
 
 .help-section h6::before {
-  /* content: '📚'; */
   margin-right: 0.5rem;
 }
 
@@ -511,7 +507,6 @@ h1 {
   }
 }
 
-/* Uno Karten Animation  */
 #uno-cards {
   overflow: hidden;
   position: absolute;
@@ -519,21 +514,21 @@ h1 {
   width: 100%;
   top: 0;
   left: 0;
-  z-index: 9999; /* Vordergrund */
+  z-index: 900; 
 }
 
 .uno-card {
   position: absolute;
   left: 50%;
-  width: 64px; /* Kartenbreite */
-  height: 96px; /* Kartenhöhe */
+  width: 64px; 
+  height: 96px;
   background-size: cover;
   background-repeat: no-repeat;
   transform-origin: left top;
   animation: uno-card-fall 5s ease-in-out -2s infinite;
 }
 
-/* Keyframes für Karten-Animation */
+/* UNO Card Animation */
 @keyframes uno-card-fall {
   0% {
       transform: rotateZ(15deg) rotateY(0deg) translate(0, 0);
@@ -552,7 +547,7 @@ h1 {
   }
 }
 
-/* Verschiedene Positionen und Verzögerungen */
+/* Various positions and delays */
 .uno-card:nth-child(1) {
   left: 10%;
   animation-delay: 0;
@@ -603,4 +598,4 @@ h1 {
   animation-delay: -2.5s;
 }
 
-/* End UNO Karten Animation  */
+/* End UNO card animation  */

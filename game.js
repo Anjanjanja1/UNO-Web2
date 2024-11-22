@@ -1,109 +1,118 @@
+//TO FIND ALL THE DEBUGGING CODES, SEARCH FOR "DEBUG" IN THE FILE
 
-// Global variables
 
-let gameId = null; // Speichert die Spiel-ID global
-let gameDirection = "clockwise";  // Spielrichtung - default im Uhrzeigersinn
-let playerNames = [];  // Spielernamen
-let globalResult = Object();  // Players: [Player{ Cards{}, Score}]
-let playerIndexMap = {};   // Player : Index
-let currentPlayer = null;   // Name des Spielers, der am Zug ist
-let selectedCard = null;   // Karte, die gespielt werden soll
-let submitting = false;  //To control error messages; tracks if a form submission attempt is being made
+//GLOBAL VARIABLES
 
-//Check if player names are unique
+let gameId = null; //Game ID -> to uniquely identify the game
+let gameDirection = "clockwise";  //Game direction -> default is clockwise
+let playerNames = [];  //List of player names participating in the game
+let globalResult = Object();  //Global result object containing player data: {Player: {Cards{}, Score}}
+let playerIndexMap = {};   //Mapping of player names to their respective index in the game
+let currentPlayer = null;   //Name of the player whose turn it is
+let selectedCard = null;   //The card selected by the player to be played
+
+
+//Check if player names are unique and display an error message if duplicates are found
 function checkUniqueNames() {
+    //Get the player names from the input fields and trim whitespace
     const playerInputs = [
         document.getElementById('player1').value.trim(),
         document.getElementById('player2').value.trim(),
         document.getElementById('player3').value.trim(),
         document.getElementById('player4').value.trim()
     ];
-    //Filter out empty fields
+    //Filter out empty fields to only consider names that have been entered
     const filledInputs = playerInputs.filter(name => name !== '');
 
-    //Set stores only unique values -> automatically ignores/removes duplicates
+    //Use a Set to automatically filter out duplicate names since Sets only store unique values
     const uniqueNames = new Set(filledInputs);
 
-    //If the number of unique names is less than the number of filled inputs, there are duplicates
+    //If the size of the Set is smaller than the number of filled inputs, duplicates exist
     if (uniqueNames.size !== filledInputs.length) {
+        //Display an error message to indicate all names must be unique
         document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
     }
-    //Clear any previous error message
+    //Clear any previously displayed error message if all names are unique
     else {
         document.getElementById('message').textContent = '';
     }
 }
 
-// Starten eines neuen Spiel mit Spielernamen & initialisiert globale Variablen
+//Start a new game with the provided player names and initialize global variables
 function submitPlayerNames() {
-    submitting = true; //Prevents multiple submissions & indicated that a form submission is being attempted
+    const submitButton = document.getElementById('newRoundButton'); 
+    submitButton.disabled = true; //Disable the button to prevent multiple submissions
 
+    //Retrieve and trim whitespace from player name inputs
     const player1 = document.getElementById('player1').value.trim();
     const player2 = document.getElementById('player2').value.trim();
     const player3 = document.getElementById('player3').value.trim();
     const player4 = document.getElementById('player4').value.trim();
 
-    // Spieler-Namen in einem Array speichern
+    //Store player names in an array
     playerNames = [player1, player2, player3, player4];
 
     // playerNames = ['Melissa', 'Ajla', 'Sophia', 'Anja']; //THIS IS HARD CODED FOR TESTING-REMOVE IT WHEN NOT NEEDED
 
-    // //Prepares the form for new validation
+    //Clear any previous validation message(prepares the form for new validation)
     document.getElementById('message').textContent = '';
 
-    //Check if there is any empty fields
+    //Check if any player name input is empty
     if (playerNames.some(name => name === '')) {
+        //Display an error message if any field is left blank
         document.getElementById('message').textContent = 'Bitte gib für alle Spieler einen Namen ein.';
-        submitting = false;  //Reset the flag because the form is not fully submitted
+        submitButton.disabled = false; //Re-enable the button for correction
         return;
     }
 
-    //Double check the uniqueness
+    //Double check the uniqueness of all player names
     const uniqueNames = new Set(playerNames);
 
     if (uniqueNames.size !== playerNames.length) {
+        //Display an error message if duplicate names are found
         document.getElementById('message').textContent = 'Alle Spielernamen müssen einzigartig sein.';
-        submitting = false;
+        submitButton.disabled = false; //Re-enable the button for correction
         return;
     }
     else {
+        //Clear validation message if all names are valid
         document.getElementById('message').textContent = '';
     }
 
-    // Modal schließen
+    //Close the player name modal using Bootstrap modal instance
     const playerModal = bootstrap.Modal.getInstance(document.getElementById('playerModal'));
     playerModal.hide();
 
-    // Startet das Spiel mit den eingegebenen Spielernamen
+    //Start the game with the validated player names
     startGame();
-    submitting = false; //Reset the flag because the form is fully submitted
 }
 
-// Reset the game and clear player inputs
-// resetGame() is called when the "Neues Spiel" button is clicked
+//Reset the game and clear all player inputs
+//resetGame() is called when the "Neues Spiel" button is clicked
 function resetGame() {
     //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
-    //hide modals
+    //Hide all modals
     const winnerModal = bootstrap.Modal.getInstance(document.getElementById('winnerModal'));
     const playerModal = bootstrap.Modal.getInstance(document.getElementById('playerModal'));
-    if (winnerModal) winnerModal.hide();
-    if (playerModal) playerModal.hide();
+    if (winnerModal) winnerModal.hide(); //Hide the winner modal if it is open
+    if (playerModal) playerModal.hide(); //Hide the player modal if it is open
 
     //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
-    //remove modal backdrops
+    //Remove any leftover modal backdrops and reset the body class to avoid modal issues
     document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
     document.body.classList.remove('modal-open');
 
-    //Clear each player input field
+    //Clear all player input fields to allow fresh input for a new game
     document.getElementById('player1').value = '';
     document.getElementById('player2').value = '';
     document.getElementById('player3').value = '';
     document.getElementById('player4').value = '';
 
+    //Clear any displayed validation or error messages
     document.getElementById('message').textContent = '';
 
+    //Reset all game-related variables to their initial states
     playerNames = [];
-    submitting = false;
     gameId = null;
     globalResult = [];
     currentPlayer = null;
@@ -112,117 +121,117 @@ function resetGame() {
     gameDirection = "clockwise";
 
     //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
-    document.getElementById('top-section').style.display = 'block';
-    document.getElementById('game-info').style.display = 'none';
-    console.log("Spiel zurückgesetzt!");
+     //Ensure proper UI state by resetting visibility of sections
+    document.getElementById('top-section').style.display = 'block'; //Show the top section
+    document.getElementById('game-info').style.display = 'none'; //Hide the game info section
+    
+    console.log("Spiel zurückgesetzt!"); //DEBUG
 
+    //Prepare the game for a new round by calling submitPlayerNames()
     submitPlayerNames();
 }
 
+//Starts a new round by resetting variables and cleaning up modal elements
 function startNewRound() {
-    //hide winner modal
+    //Hide the winner modal
     const winnerModal = bootstrap.Modal.getInstance(document.getElementById('winnerModal'));
     winnerModal.hide();
 
     //WITHOUT THIS THE GAME WILL NOT RESET PROPERLY
-    //remove any lingering modal backdrops
+    //Remove lingering modal backdrops and reset body class to avoid modal issues
     document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
     document.body.classList.remove('modal-open');
 
-    submitting = false;
+    //Reset game state variables
     gameId = null;
     globalResult = [];
     currentPlayer = null;
     selectedCard = null;
     gameDirection = "clockwise";
 
-    //startet das Spiel mit den eingegebenen Spielernamen
+    //Restart the game with the current player setup
     startGame();
 }
 
-//Listener to check for all input changes in real time
+//Listener to validate player names in real-time whenever there is an input change
 document.getElementById('playerForm').addEventListener('input', checkUniqueNames);
 
-//Listener for Enter key in the form
+//Listener to handle Enter key press within the player form
 document.getElementById('playerForm').addEventListener('keypress', function (event) {
     if (event.key === 'Enter') {
-        event.preventDefault(); //Prevent the form from submitting
-        submitPlayerNames(); //Manually handle the form submission with validations
+        event.preventDefault(); //Prevent default form submission behavior
+        submitPlayerNames(); //Trigger form submission manually with validations
     }
 });
 
 
-// Start new game: set gameId, card setup, currentPlayer
+//Start a new game by initializing game data, setting up players, and preparing the UI
 function startGame() {
+    //Send a POST request to the server to start the game with the provided player names
     fetch('https://nowaunoweb.azurewebsites.net/api/Game/Start', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json; charset=UTF-8',
         },
-        body: JSON.stringify(playerNames)
+        body: JSON.stringify(playerNames) //Send the player names as the request payload
     })
         .then(response => {
             if (!response.ok) {
+                //Throw an error if the server response is not successful
                 throw new Error(`HTTP-Fehler! Status: ${response.status}`);
             }
-            return response.json();
+            return response.json(); //Parse the server's response as JSON
         })
         .then(gameData => {
-            document.getElementById('top-section').style.display = 'none'; //hide top section
-            document.getElementById('game-info').style.display = 'block'; //show game section
-            document.getElementById('game-controls').style.display = 'flex'; //show game controls
+            //Update the UI to display the game interface
+            document.getElementById('top-section').style.display = 'none'; //Hide the top section
+            document.getElementById('game-info').style.display = 'block'; //Show game section
+            document.getElementById('game-controls').style.display = 'flex'; //Show game controls
+            
+            //Validate the structure of the received game data
             if (!gameData || !gameData.Id || !gameData.Players || gameData.Players.length === 0) {
                 throw new Error("Ungültige Datenstruktur");
             }
 
-            gameId = gameData.Id;
-            globalResult = gameData.Players;
-            console.log("From server: ", globalResult);
-            currentPlayer = gameData.NextPlayer;  // name of player who starts
-            console.log("Current Player: ", currentPlayer);  // DELETE AGAIN
+            //Initialize game variables with data from the server response
+            gameId = gameData.Id; //Store the unique game ID
+            globalResult = gameData.Players; //Store player information
+            console.log("From server: ", globalResult); //DEBUG
+            currentPlayer = gameData.NextPlayer;  //Set the starting player
+            console.log("Current Player: ", currentPlayer);  //DEBUG
 
-            // Retain scores from the previous rounds
-            gameData.Players.forEach(player => {
-                const existingPlayer = globalResult.find(p => p.Player === player.Player);
-                if (existingPlayer) {
-                    player.Score = existingPlayer.Score;
-                }
-            });
-
-            // Initialize player index map
-            // "Melissa": 0,
-            //     "Ajla": 1,
-            //     "Sophia": 2,
-            //     "Anja": 3
-
+            //Create a mapping of player names to their index
             globalResult.forEach((player, index) => {
                 playerIndexMap[player.Player] = index;
             });
 
-            console.log("PlayersIndexMap: ", playerIndexMap);   // DELETE AGAIN
+            console.log("PlayersIndexMap: ", playerIndexMap);   //DEBUG
 
-            document.getElementById('top-section').firstElementChild.innerHTML = '';
-            document.getElementById('start-game').textContent = 'Start New Game';
+            //Update the UI for the game interface
+            document.getElementById('top-section').firstElementChild.innerHTML = ''; //Clear the top section
+            document.getElementById('start-game').textContent = 'Start New Game'; //Update button text
             let gameinfo = document.getElementById('game-info');
-            gameinfo.style.display = 'block';
-            gameinfo.style.backgroundImage = `url('imgs/table.jpg')`;
+            gameinfo.style.display = 'block'; //Show the game section
+            gameinfo.style.backgroundImage = `url('imgs/table.jpg')`; //Set background image
 
-            //display top card
+            //Display the top card from the deck
             const topCard = gameData.TopCard;
             displayTopCard(topCard);
 
-            //check if the top card is "Reverse" and apply the effect
+            //Check if the first top card is "Reverse" and change the game direction accordingly
             if (topCard.Text === 'Reverse') {
                 console.log("Initial top card is 'Reverse'. Changing game direction.");
-                changeDirection(); //reverse direction at the start
+                changeDirection(); //Reverse the game direction
             }
 
+            //Display players' cards and the current game direction
             displayPlayersCards();
             displayGameDirection();
         })
-        .catch(error => console.error('Fehler beim Starten des Spiels:', error));
+        .catch(error => console.error('Fehler beim Starten des Spiels:', error)); //Log any errors during the process
 }
-// Define a mapping between server and local text codes
+
+//Maps server-defined card codes to local representations ('Zero' -> '0')
 const serverToLocalCardMap = {
     'Zero': '0',
     'One': '1',
@@ -241,6 +250,7 @@ const serverToLocalCardMap = {
     'ChangeColor': '14'
 };
 
+//Maps local card representations to server-defined codes ('0' -> 'Zero')
 const localToServerCardMap = {
     '0': 'Zero',
     '1': 'One',
@@ -259,124 +269,120 @@ const localToServerCardMap = {
     '14': 'ChangeColor'
 };
 
+//Returns the file path for the card image based on the card's color and text code
 function getCardImagePath(color, serverText) {
-    let localText = convertServerToLocal(serverText);
+    let localText = convertServerToLocal(serverText);  //Convert server text to local text
 
     if (!localText) {
-        console.warn('Unbekannte Karte:', serverText);
+        console.warn('Unbekannte Karte:', serverText); //Log a warning for unknown cards
         return '';
     }
-    return `imgs/Cards/${color}${localText}.png`;
+    return `imgs/Cards/${color}${localText}.png`; //Return the path to the card image
 }
 
+//Converts a server-defined card text code to its local representation
 function convertServerToLocal(serverValue) {
     if (serverToLocalCardMap[serverValue]) {
         return serverToLocalCardMap[serverValue];
     } else {
-        console.error(`Unknown server card value: ${serverValue}`);
+        console.error(`Unknown server card value: ${serverValue}`); //Log an error for unrecognized values
         return null;
     }
 }
 
+//Converts a local card text code to its server-defined representation
 function convertLocalToServer(localValue) {
     if (localToServerCardMap[localValue]) {
         return localToServerCardMap[localValue];
     } else {
-        console.error(`Unknown local card value: ${localValue}`);
+        console.error(`Unknown local card value: ${localValue}`); //Log an error for unrecognized values
         return null;
     }
 }
 
-
-
-// display each players cards
+//Display each player's cards in the game interface
 function displayPlayersCards() {
-
     const allPlayersContainer = document.getElementById('players-cards');
-    allPlayersContainer.innerHTML = '';
+    allPlayersContainer.innerHTML = ''; //Clear previous content
 
     globalResult.forEach(player => {
-        // create card section for every player
+        //Create a section for the current player's cards and details
         const playerSection = document.createElement('div');
         playerSection.classList.add('player-section');
         playerSection.innerHTML = `<h4>${player.Player}</h4>`;
         playerSection.classList.add('player-section');
         playerSection.innerHTML = `<h4>${player.Player}</h4>    
-         <p id="${player.Player}-score" class="player-score">Score: ${player.Score}</p>`;
+        <p id="${player.Player}-score" class="player-score">Score: ${player.Score}</p>`;
 
-
+        //Create a container for the player's cards
         const playerCardsList = document.createElement('div');
         playerCardsList.classList.add('player-cards-container');
         playerCardsList.id = `${player.Player}`;
 
-        // show, activate & highlight current player cards
+        //Highlight and activate the current player's cards
         if (player.Player === currentPlayer) {
-
-            // highlight the background of current players deck
-            playerCardsList.classList.add('active');
+            playerCardsList.classList.add('active'); //Highlight the background of current players deck
 
             player.Cards.forEach(card => {
-                //validate card has Color and Text properties
+                //Validate card has Color and Text properties
                 if (!card.Color || !card.Text) {
                     console.error("Fehler: Die Karte hat keine gültigen Eigenschaften:", card);
-                    return; //skip this card if it doesn't have valid properties
+                    return; //Skip invalid cards
                 }
 
-
-                // create active card image
+                //Create an image element for the active card
                 const activeCardImg = document.createElement('img');
-                activeCardImg.classList.add('active-card');  // card is active
-                activeCardImg.addEventListener('click', playCard);  // card is clickable
+                activeCardImg.classList.add('active-card');  //Mark card as active
+                activeCardImg.addEventListener('click', playCard);  //Make the card clickable
 
-                activeCardImg.src = getCardImagePath(card.Color, card.Text);
-                activeCardImg.alt = `${card.Color} ${card.Text}`;
-                activeCardImg.id = `${card.Color}${convertServerToLocal(card.Text)}`;
+                activeCardImg.src = getCardImagePath(card.Color, card.Text); //Set card image source
+                activeCardImg.alt = `${card.Color} ${card.Text}`; //Set alternative text
+                activeCardImg.id = `${card.Color}${convertServerToLocal(card.Text)}`;  //Set unique card ID
 
-                playerCardsList.appendChild(activeCardImg);
-
+                playerCardsList.appendChild(activeCardImg); //Add card to player's card list
             });
         }
+        //Hide inactive player's cards by displaying the back of the cards
         else {
-            // hide cards of inactive player
             player.Cards.forEach(() => {
-                //   for (let i = 0; i < player.Cards.length; i++) {
                 const backCardImg = document.createElement('img');
-                backCardImg.src = 'imgs/Cards/back0.png'; // Pfad zur Rückseite der UNO-Karte
-                backCardImg.alt = 'Inactive Card';
-                playerCardsList.appendChild(backCardImg);
-                // remove 'active-card' class and click listener
-                backCardImg.removeEventListener('click', playCard); // deactivate click
-                backCardImg.className = 'inactive-card';  //change class name to 'inactive-card'
+                backCardImg.src = 'imgs/Cards/back0.png';  //Path to card back image
+                backCardImg.alt = 'Inactive Card'; //Set alternative text for inactive card
+                playerCardsList.appendChild(backCardImg); //Add card back to player's card list
+                
+                //Remove 'active-card' class and click listener
+                backCardImg.removeEventListener('click', playCard); //Deactivate click
+                backCardImg.className = 'inactive-card';  //Change class name to 'inactive-card'
             });
 
-            // de-highlight background for inactive player
+            //Remove the highlight for inactive players
             playerCardsList.classList.remove('active');
         }
-
-        // append card list to all player sections
+        //Add the player's card container to their section and display it
         playerSection.appendChild(playerCardsList);
         allPlayersContainer.appendChild(playerSection);
     });
 }
 
-
-// display game direction
+//Display the current game direction (e.g., clockwise or counterclockwise)
 function displayGameDirection() {
+    //Get the container for the game direction indicator
     let directionDiv = document.getElementById('game-direction');
     directionDiv.innerHTML = ''; //clear existing content -> so the circle is not added multiple times
+
+    //Create an image element to represent the game direction
     let directionImg = document.createElement('img');
-    directionImg.src = "imgs/clockwise.png";
-    directionImg.alt = `${gameDirection}`;
-    directionImg.id = "game-direction-image";
-    directionImg.className = "img-fluid";
-    directionDiv.appendChild(directionImg);
+    directionImg.src = "imgs/clockwise.png"; //Path to the default clockwise image
+    directionImg.alt = `${gameDirection}`; //Set the alt text to the current game direction
+    directionImg.id = "game-direction-image"; //Assign a unique ID for styling or updates
+    directionImg.className = "img-fluid"; //Ensure the image is responsive
+
+    directionDiv.appendChild(directionImg); //Add the game direction image to the container
 }
 
-
-// switch game direction and display it (flip image)
+//Switch the game direction and update the displayed image to reflect the change
 function changeDirection() {
-
-    let directionImg = document.getElementById('game-direction-image');
+    let directionImg = document.getElementById('game-direction-image');  //Get the current direction image element
 
     // if img is clockwise
     if (gameDirection === "clockwise") {
@@ -392,7 +398,7 @@ function changeDirection() {
         directionImg.src = "imgs/clockwise.png";
         gameDirection = "clockwise";
         directionImg.alt = `${gameDirection}`;
-        directionImg.classList.add("rotate-scale-up"); //rotate animation
+        directionImg.classList.add("rotate-scale-up"); // rotate animation
     }
 
     // remove animation class after animation
@@ -400,88 +406,85 @@ function changeDirection() {
         directionImg.classList.remove("rotate-scale-up");
     }, 700);
 
-    console.log("Spielrichtung geändert zu:", gameDirection);
+    console.log("Spielrichtung geändert zu:", gameDirection); //DEBUG
 }
 
 // DELETE function when not needed anymore (only for testing)
-// update variable currentPlayer
+//Update the variable `currentPlayer` to the next player based on game direction
 function nextPlayer() {
-
     let direction = (gameDirection === "counterclockwise") ? -1 : 1;  // clockwise = 1, counterclockwise = -1
-    let currentPlayerIndex = playerIndexMap[currentPlayer]; // find index of active player in player array
+    let currentPlayerIndex = playerIndexMap[currentPlayer];  //Find the current player's index in the player array
 
-
-    // update current player (considering direction)
+    //Update the `currentPlayer` to the next player in the sequence (considering direction)
     if (currentPlayerIndex !== undefined) {
+        //Calculate the next index, wrapping around the array if needed
         let nextIndex = (currentPlayerIndex + direction + globalResult.length) % globalResult.length;
-        currentPlayer = globalResult[nextIndex].Player;
-        console.log(`Next player is: ${currentPlayer}`);
+        currentPlayer = globalResult[nextIndex].Player; //Set the next player as active
+        console.log(`Next player is: ${currentPlayer}`); //DEBUG
     } else {
-        console.error("Player not found in playerIndexMap!");
+        console.error("Player not found in playerIndexMap!"); //DEBUG
     }
 }
 
 
-// play selected card
+//Play the selected card and update the game state
 async function playCard(event, wildColor = null) {
+    //DEBUG
     console.log("Karte wurde geklickt!")
-    console.log(event);  // DELETE
-    console.log("Current Player: " + currentPlayer);  //DELETE
+    console.log(event); 
+    console.log("Current Player: " + currentPlayer);
+    //Get the index of the current player in the player array
+    let playerIndex = playerIndexMap[currentPlayer]; 
+    console.log("Global Result Player: " + globalResult[playerIndex]); //DEBUG
 
-    let playerIndex = playerIndexMap[currentPlayer];
-    console.log("Global Result Player: " + globalResult[playerIndex]);   // DELETE
+    //Get the selected card's ID (e.g., "Red10") from the clicked element(active player's card)
+    selectedCard = event.target.id;
+    console.log(`Selected Card ID: ${selectedCard}`); //DEBUG
 
-    selectedCard = event.target.id;  // card selected by active player; "Red10"
-    console.log(`Selected Card ID: ${selectedCard}`); //DELETE
+    //Extract the color and value from the selected card's ID
+    let color = selectedCard.match(/[A-Za-z]+/g)[0]; //Extract the color part
+    let value = selectedCard.match(/[0-9]+/g)[0]; //Extract the numeric value part
 
-    //split the card ID to get color and value
-    let color = selectedCard.match(/[A-Za-z]+/g)[0];
-    let value = selectedCard.match(/[0-9]+/g)[0];
-
-    //convert local card value to server representation
+    //Convert the local card value to the server's format
     const serverValue = convertLocalToServer(value);
 
-    console.log(`Selected Card(server value): ${color} ${value}`);  //DELETE
+    console.log(`Selected Card(server value): ${color} ${value}`);  //DEBUG
     if (!serverValue) {
-        console.error("Kartenwert kann nicht umgerechnet werden:", value);
-        wrongCardAnimation(event.target);  //highlight card as a wrong move
+        console.error("Kartenwert kann nicht umgerechnet werden:", value); //DEBUG
         return;
     }
 
-    let topCard = await getTopCard();
-    //convert top card value to local representation for comparison
-    const topCardValueLocal = convertServerToLocal(topCard.Text);
+    let topCard = await getTopCard(); //Fetch the current top card from the deck
+    const topCardValueLocal = convertServerToLocal(topCard.Text); //Convert the top card's server value to local format for comparison
+    
     if (!topCardValueLocal) {
-        console.error("Der oberste Kartenwert konnte nicht konvertiert werden:", topCard.Text);
+        console.error("Der oberste Kartenwert konnte nicht konvertiert werden:", topCard.Text); //DEBUG
         return;
     }
 
-    //validate if the selected card can be played
+    //Check if the selected card is playable
     if (!isCardPlayable(value, color, topCardValueLocal, topCard.Color)) {
-        console.error("Ungültige Karte gespielt:", serverValue);
-        wrongCardAnimation(event.target);  //highlight card as a wrong move
+        console.error("Ungültige Karte gespielt:", serverValue); //DEBUG
+        wrongCardAnimation(event.target);  //Highlight the card to indicate an invalid move
         return;
     }
-    console.log('Karte ist gültig, mit dem Spiel fortfahren...');
+    console.log('Karte ist gültig, mit dem Spiel fortfahren...'); //DEBUG
 
-
-    //DELETE
+    //DEBUG
     console.log(`Value: ${serverValue}`);
     console.log(`Color: ${color}`);
     console.log('Current player:', currentPlayer);
     console.log('gameId:', gameId);
     console.log('wildColor:', wildColor);
 
-    playCardAnimation(event.target); // css animation
+    playCardAnimation(event.target); //Play card animation for the selected card
 
+    //Construct the server URL for playing the selected card
     let url = `https://nowaunoweb.azurewebsites.net/api/Game/PlayCard/${gameId}?value=${value}&color=${color}&wildColor=${wildColor}`;
-
-    console.warn("Spielen Karte, URL:", url);
-
-
-    console.log("URL ____ :::: " + url);
+    console.warn("Spielen Karte, URL:", url); //DEBUG
 
     try {
+        //Send a PUT request to the server to play the card
         const response = await fetch(url, {
             method: 'PUT',
             headers: {
@@ -495,38 +498,40 @@ async function playCard(event, wildColor = null) {
             throw new Error(`Fehler beim Spielen einer Karte! Status: ${response.status}`);
         }
 
-        const result = await response.json();
-        console.log("Karte wurde gespielt!");
-        console.log(result); //DELETE
+        const result = await response.json(); //Parse the server's response
+        //DEBUG
+        console.log("Karte wurde gespielt!"); 
+        console.log(result);
 
-        await updatePlayerCardsAndScore(currentPlayer);  //update cards of the current player
+        await updatePlayerCardsAndScore(currentPlayer);  //Update the current player's cards and score
 
         //TODO: Draw4, ChangeColor
-        handleSpecialCards(serverValue);  //handle special cards like Skip, Draw2, Reverse 
+        handleSpecialCards(serverValue);  //Process any special card effects (e.g., Skip, Draw2, Reverse)
 
-        //UPDATE THE GAME STATE
+        //Update the game's state after the card is played
         updateGameState();
 
     } catch (error) {
-        console.error('Fehler beim Spielen einer Karte:', error);
-        alert('Fehler beim Spielen der Karte!');
+        console.error('Fehler beim Spielen einer Karte:', error); //DEBUG
+        alert('Fehler beim Spielen der Karte!'); //Display an error message to the user
     }
 }
 
-
+//Update the game state after a card is played
 async function updateGameState() {
-    await updatePlayerCardsAndScore(currentPlayer);
-    await displayTopCard();
+    await updatePlayerCardsAndScore(currentPlayer); //Update the current player's cards and score
+    await displayTopCard(); //Display the updated top card on the game interface
+    
+    //Wait briefly before moving to the next player and updating the display
     setTimeout(() => {
-        nextPlayer();
-        displayPlayersCards();
-    }, 800);
+        nextPlayer(); //Determine the next player's turn
+        displayPlayersCards(); //Update the card display for all players
+    }, 800); //Delay for smooth transitions
 }
 
-
-//card validity
+//Check if the selected card is valid for play based on the top card
 function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
-    //the card is playable if it matches the top card's color or value or if it is a wildcard
+    //DEBUG
     console.log(`Comparing played card (Color: ${cardColor}, Value: ${cardValue}) with Top Card (Color: ${topCardColor}, Value: ${topCardValue})`);
 
     if (cardColor === topCardColor) {
@@ -538,44 +543,47 @@ function isCardPlayable(cardValue, cardColor, topCardValue, topCardColor) {
     if (cardColor === "Black") {
         return true;
     }
-
-    //card does not match any valid criteria
+    //The card is not playable if it doesn't meet any criteria
     return false;
 }
 
+//Add a visual animation to indicate an invalid card play
 function wrongCardAnimation(cardElement) {
-    cardElement.classList.add('wrong-card');
+    cardElement.classList.add('wrong-card'); //Add the 'wrong-card' class to the card element to trigger the animation
+
+    //Remove the 'wrong-card' class after the animation ends (2 seconds)
     setTimeout(() => {
         cardElement.classList.remove('wrong-card');
-    }, 2000);  //animation lasts for 2 seconds
+    }, 2000);
 }
 
 //TODO: Draw4, ChangeColor
+//Handle the effects of special cards (e.g., Skip, Draw2, Reverse, Draw4, ChangeColor)
 async function handleSpecialCards(serverValue) {
     if (serverValue === 'Skip') {
         skipPlayer();
-        // sTODO: display skipPlayer Popup here
+        //TODO: display skipPlayer Popup here
     } else if (serverValue === 'Draw2') {
-        //the server already adds cards to the next player -> just need to skip that player's turn
-        console.log(`Der Spieler muss 2 Karten ziehen und seinen Zug verlieren.`);
-        nextPlayer();
-        await updatePlayerCardsAndScore(currentPlayer);
+        //The server automatically adds cards to the next player's hand; skip their turn
+        console.log(`Der Spieler muss 2 Karten ziehen und seinen Zug verlieren.`); //DEBUG
+        nextPlayer(); //Move to the next player
+        await updatePlayerCardsAndScore(currentPlayer); //Update the cards and score of the next player
     } else if (serverValue === "Reverse") {
-        console.log("Umgekehrte Karte gespielt! Richtungswechsel.");
-        changeDirection();  //update the game direction visually and in the game state
+        console.log("Umgekehrte Karte gespielt! Richtungswechsel."); //DEBUG
+        changeDirection();  //Update the game direction visually and in the game state
     }
 }
-
+//Skip the current player's turn and move to the next player
 function skipPlayer() {
     nextPlayer();
-    console.log("Spieler übersprungen! Neuer currentPlayer:", currentPlayer);
+    console.log("Spieler übersprungen! Neuer currentPlayer:", currentPlayer); //DEBUG
 }
 
 
-// css animation: move discarded card to top-card stack
+//CSS animation: Move the played card to the top-card stack visually
 function playCardAnimation(cardElement) {
 
-    const topCardStack = document.getElementById("top-card");
+    const topCardStack = document.getElementById("top-card"); //Get the top card stack element
 
     // start and destination positions
     const cardRect = cardElement.getBoundingClientRect();
@@ -589,11 +597,11 @@ function playCardAnimation(cardElement) {
     cardElement.style.setProperty('--move-x', `${moveX}px`);
     cardElement.style.setProperty('--move-y', `${moveY}px`);
 
-    // Sicherstellen, dass die Karte absolut positioniert ist
+    // ensure the card is absolutely positioned for smooth animation
     cardElement.style.position = 'absolute';
     cardElement.style.zIndex = '10';
 
-    // Ausgangsposition setzen
+    // set the starting position of the card
     cardElement.style.top = `${cardRect.top + window.scrollY}px`;
     cardElement.style.left = `${cardRect.left + window.scrollX}px`;
 
@@ -613,11 +621,12 @@ function playCardAnimation(cardElement) {
 }
 
 
-// update cards and score of active player after turn
+//Update the cards and score of the active player after their turn
 async function updatePlayerCardsAndScore(playerName) {
-
+    //Construct the API URL for fetching updated player data
     let URL = `https://nowaunoweb.azurewebsites.net/api/Game/GetCards/${gameId}?playerName=${playerName}`;
 
+    //Send a GET request to fetch the updated cards and score for the player
     let response = await fetch(URL, {
         method: "GET",
         headers: {
@@ -626,75 +635,77 @@ async function updatePlayerCardsAndScore(playerName) {
     });
 
     if (response.ok) {
-        let apiResponseToUpdatePlayerCards = await response.json();
-        let playerIndex = playerIndexMap[playerName];
-        console.log('PlayerIndex: ', playerIndex);
+        let apiResponseToUpdatePlayerCards = await response.json(); //Parse the API response
+        let playerIndex = playerIndexMap[playerName]; //Find the player's index in the global result array
+        console.log('PlayerIndex: ', playerIndex); //DEBUG
 
+        //Update the player's cards and score in the global result object
         if (playerIndex !== undefined) {
             globalResult[playerIndex].Cards = apiResponseToUpdatePlayerCards.Cards;  //update cards
             globalResult[playerIndex].Score = apiResponseToUpdatePlayerCards.Score;  // update score
-            console.log(`Updated cards for ${playerName}:`, globalResult[playerIndex].Cards); // Log updated cards
+            console.log(`Updated cards for ${playerName}:`, globalResult[playerIndex].Cards); //DEBUG
 
-            //check if the player has one or no cards left
+            //Check the number of cards remaining for the player
             let cardsRemaining = globalResult[playerIndex].Cards.length;
             if (cardsRemaining === 1) {
-                console.log(`${playerName} has only one card left!`);
+                console.log(`${playerName} has only one card left!`); //DEBUG
                 alert(`${playerName} has UNO!`); //TODO: CALL UNO FUNCTION?
-            } else if (cardsRemaining === 0) {
-                endGame(playerName);
-                startUnoCardsAnimation();
+            } 
+            //End the game if the player has no cards left
+            else if (cardsRemaining === 0) {
+                endGame(playerName); 
             }
         } else {
-            console.error("Spielerindex nicht gefunden für: ", playerName);
+            console.error("Spielerindex nicht gefunden für: ", playerName); //DEBUG
         }
     } else {
-        console.error('Karten konnten nicht aktualisiert werden für:', playerName);
+        console.error('Karten konnten nicht aktualisiert werden für:', playerName); //DEBUG
     }
 }
 
-
-//fetch the current top card
+//Fetch and return the current top card from the server
 async function getTopCard() {
+    //Send a GET request to retrieve the top card of the game
     const response = await fetch(`https://nowaunoweb.azurewebsites.net/api/Game/TopCard/${gameId}`);
+    //Parse and return the top card data from the response
     if (response.ok) {
         let topCard = await response.json();
         return topCard;
     } else {
-        console.error('Error fetching the top card:', response.status);
+        console.error('Error fetching the top card:', response.status); //DEBUG
         return null;
     }
 }
 
-
-// display current top card
+//Fetch and display the current top card on the game interface
 async function displayTopCard() {
-    fetch(`https://nowaunoweb.azurewebsites.net/api/Game/TopCard/${gameId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP-Fehler beim Abrufen der Top Card! Status: ${response.status}`);
-            }
-            return response.json();
-        })
+    getTopCard() //Fetch the top card using the reusable getTopCard method
         .then(topCard => {
+            if (!topCard) {
+                console.error('Failed to fetch the top card.');
+                return;
+            }
+            //Get the top card container and clear its existing content
             const topCardContainer = document.getElementById('top-card');
             topCardContainer.innerHTML = '';
-
+            
+            //Create an image element for the top card and set its attributes
             const topCardImg = document.createElement('img');
-            topCardImg.classList.add('active-card');
+            topCardImg.classList.add('active-card'); //Add the appropriate class for styling
+            topCardImg.src = getCardImagePath(topCard.Color, topCard.Text); //Set the image path
+            topCardImg.alt = `${topCard.Color} ${topCard.Text}`; //Set the alternative text
 
-            topCardImg.src = getCardImagePath(topCard.Color, topCard.Text);
-            topCardImg.alt = `${topCard.Color} ${topCard.Text}`;
-
+            //Add the image to the top card container
             topCardContainer.appendChild(topCardImg);
         })
-        .catch(error => console.error('Fehler beim Abrufen der Top Card:', error));
+        .catch(error => console.error('Fehler beim Abrufen der Top Card:', error)); //Log any errors during the process
 }
 
 
-// draw a card from pile
+//Draw a card from the pile for the current player
 async function drawCard() {
-
     try {
+        //Send a PUT request to the server to draw a card
         const response = await fetch(`https://nowaunoweb.azurewebsites.net/api/Game/DrawCard/${gameId}`, {
             method: 'PUT',
             headers: {
@@ -706,19 +717,21 @@ async function drawCard() {
             throw new Error(`Fehler beim Ziehen einer Karte! Status: ${response.status}`);
         }
 
-        // wait for json result
+        //Parse the response from the server
         const result = await response.json();
-        console.log('Karte wurde gezogen:', result);
+        console.log('Karte wurde gezogen:', result); //DEBUG
 
-        console.log('Karte wurde gezogen:', drawCard);
-        addCardToDeckAnimation(result); // start css animation
-        updatePlayerCardsAndScore(currentPlayer);  //update cards and score of the current player
+        console.log('Karte wurde gezogen:', drawCard); //DEBUG
+        addCardToDeckAnimation(result); //Trigger an animation to add the drawn card to the player's deck
+        await updatePlayerCardsAndScore(currentPlayer);  //Update the current player's cards and score
+        
+        //After a delay, update the current player and refresh the UI
         setTimeout(() => {
-            currentPlayer = result.NextPlayer; // change player after turn
-            displayPlayersCards();
-        }, 2000);
+            currentPlayer = result.NextPlayer; //Switch to the next player
+            displayPlayersCards(); //Update the display for all players' cards
+        }, 2000); //Delay to allow the animation to complete
     } catch (error) {
-        console.error('Fehler beim Ziehen einer Karte:', error);
+        console.error('Fehler beim Ziehen einer Karte:', error); //Log any errors during the process
     }
 }
 
@@ -771,56 +784,61 @@ function addCardToDeckAnimation(result) {
     }, 100);
 }
 
-
-// get hand cards from player
+//Fetch and log the hand cards of a specified player
 function getPlayerHand(gameId, playerName) {
+    //Send a GET request to fetch the player's hand cards
     fetch(`https://nowaunoweb.azurewebsites.net/api/Game/GetCards/${gameId}?playerName=${playerName}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Fehler beim Abrufen der Kartenhand von ${playerName}! Status: ${response.status}`);
             }
-            return response.json();
+            return response.json(); //Parse the response as JSON
         })
         .then(hand => {
-            console.log(`Kartenhand von ${playerName}:`, hand);
+            console.log(`Kartenhand von ${playerName}:`, hand); //DEBUG
         })
-        .catch(error => console.error('Fehler beim Abrufen der Kartenhand:', error));
+        .catch(error => console.error('Fehler beim Abrufen der Kartenhand:', error)); //Log any errors during the process
 }
 
+//End the game by calculating points, declaring a winner, and displaying the results
 function endGame(winnerName) {
     let totalPoints = 0;
 
-    //calculate points from other players' cards
+    //Calculate the total points from all other players' cards
     globalResult.forEach(player => {
         if (player.Player !== winnerName) {
             player.Cards.forEach(card => {
-                const cardPoints = calculateCardPoints(card); //..for each card
+                const cardPoints = calculateCardPoints(card); //Calculate points for each card
                 totalPoints += cardPoints;
             });
         }
     });
 
-    //add total points to the winner's score
+    //Add the calculated points to the winner's total score
     let winner = globalResult.find(player => player.Player === winnerName);
     if (winner) {
         winner.Score += totalPoints;
         console.log(`${winnerName} gewinnt diese Runde und erhält ${totalPoints} Punkte! Gesamtpunktzahl: ${winner.Score}`);
     }
 
-    //UPDATE MODAL CONTENT
+    //Update the modal content with the winner's details
     const winnerNameElement = document.getElementById('winnerName');
     const winnerScoreElement = document.getElementById('winnerScore');
-
-    //winner details
     winnerNameElement.textContent = winnerName;
     winnerScoreElement.textContent = `Gesamtpunktzahl: ${winner.Score}`;
 
-    //show modal
+    //Trigger the falling cards animation for the winner's celebration
+    startUnoCardsAnimation(); 
+
+    //Display the winner modal immediately 
     const winnerModal = new bootstrap.Modal(document.getElementById('winnerModal'));
     winnerModal.show();
+
+    //Lower the opacity of the game area while the winner modal is active
+    document.getElementById("uno-cards").style.opacity = "0.5";
 }
 
-//calculate points for cards
+//Calculate the points for a single card
 function calculateCardPoints(cards) {
     const cardValues = {
         'Zero': 0,
@@ -839,15 +857,15 @@ function calculateCardPoints(cards) {
         'Draw4': 50,
         'ChangeColor': 50
     };
-
+    //Return the card's value or 0 if it's not found
     return cardValues[cards.Text] || 0;
 }
 
-// Endgame Uno Animation
+//Start the Uno cards animation at the end of the game
 function startUnoCardsAnimation() {
     let myElem = document.getElementById("game-info");
 
-    // Array mit den Pfaden zu verschiedenen Karten
+    //Array of card image paths
     const cardImages = [
         "imgs/Cards/back0.png",
         "imgs/Cards/Blue6.png",
@@ -859,10 +877,12 @@ function startUnoCardsAnimation() {
         "imgs/Cards/back0.png"
     ];
 
+    //Create a container for the animated cards
     const divCards = document.createElement("div");
     divCards.id = "uno-cards";
     myElem.appendChild(divCards);
 
+    //Generate 10 animated card elements with random images
     for (let i = 0; i < 10; i++) {
         const divElem = document.createElement("div");
         divElem.classList.add("uno-card");
@@ -871,7 +891,7 @@ function startUnoCardsAnimation() {
         divElem.style.backgroundImage = `url('${randomImage}')`;
         divCards.appendChild(divElem);
     }
-    // 15 Sek Timer
+    //Remove the animation after 15 seconds
     setTimeout(() => {
         divCards.remove();
         console.log("UNO-Karten Animation gestoppt.");
