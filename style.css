@@ -157,7 +157,7 @@ h1 {
   color: #ffffff;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
-  padding: 1.5rem;
+  padding: auto;
 }
 
 .modal-title {
@@ -212,12 +212,12 @@ h1 {
   background-color: #1d0c06; 
   color: #ffffff; 
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: auto;
 }
 
 .modal-body {
   font-family: 'Baloo 2', sans-serif;
-  padding: 1.25rem;
+  padding: auto;
 }
 
 /* Help Modal Content */
@@ -229,11 +229,11 @@ h1 {
     "object setup play"
     "cards cards scoring";
   gap: 1.5rem;
-  padding: 1.25rem;
+  padding: 1rem;
 }
 
 .help-section {
-  padding: 1.5rem;
+  padding: 1rem;
   background: linear-gradient(145deg, #ffffff, #f3f3f3);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 3px solid rgba(0, 0, 0, 0.2);
