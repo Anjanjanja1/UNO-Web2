@@ -225,6 +225,12 @@ function startGame() {
                 console.log("Initial top card is 'Reverse'. Changing game direction.");
                 changeDirection(); //Reverse the game direction
             }
+            if (topCard.Text === 'Draw2') {
+                showPopupMessage(`😂 Oh nein, ${globalResult[0].Player} muss 2 Karten ziehen! 🃏`); //Display a popup message for the affected player
+            }
+            if (topCard.Text === 'Skip') {
+                showPopupMessage(`😅 Ups! ${globalResult[0].Player} wurde übersprungen! 🔥`); //Display a popup message for the skipped player
+            }
 
             //Display players' cards and the current game direction
             displayPlayersCards();
@@ -563,23 +569,22 @@ function wrongCardAnimation(cardElement) {
 async function handleSpecialCards(serverValue) {
     if (serverValue === 'Skip') {
         skipPlayer();
-        //TODO: display skipPlayer Popup here
     } else if (serverValue === 'Draw2') {
         //The server automatically adds cards to the next player's hand; skip their turn
-        console.log(`Der Spieler muss 2 Karten ziehen und seinen Zug verlieren.`); //DEBUG
         nextPlayer(); //Move to the next player
+        showPopupMessage(`😂 Oh nein, ${currentPlayer} muss 2 Karten ziehen! 🃏`); //Display a popup message for the player
         await updatePlayerCardsAndScore(currentPlayer); //Update the cards and score of the next player
     } else if (serverValue === "Reverse") {
         console.log("Umgekehrte Karte gespielt! Richtungswechsel."); //DEBUG
         changeDirection();  //Update the game direction visually and in the game state
     }
 }
+
 //Skip the current player's turn and move to the next player
 function skipPlayer() {
     nextPlayer();
-    console.log("Spieler übersprungen! Neuer currentPlayer:", currentPlayer); //DEBUG
+    showPopupMessage(`😅 Ups! ${currentPlayer} wurde übersprungen! 🔥`); //Display a popup message for the skipped player
 }
-
 
 //CSS animation: Move the played card to the top-card stack visually
 function playCardAnimation(cardElement) {
@@ -650,7 +655,7 @@ async function updatePlayerCardsAndScore(playerName) {
             let cardsRemaining = globalResult[playerIndex].Cards.length;
             if (cardsRemaining === 1) {
                 console.log(`${playerName} has only one card left!`); //DEBUG
-                unoPopUp();
+                showPopupMessage(`😎 ${playerName} ruft UNO! Bist du bereit?`);
             } 
             //End the game if the player has no cards left
             else if (cardsRemaining === 0) {
@@ -721,7 +726,6 @@ async function drawCard() {
         //Parse the response from the server
         const result = await response.json();
         console.log('Karte wurde gezogen:', result); //DEBUG
-        drawTwoPopUp();
         console.log('Karte wurde gezogen:', drawCard); //DEBUG
         addCardToDeckAnimation(result); //Trigger an animation to add the drawn card to the player's deck
         await updatePlayerCardsAndScore(currentPlayer);  //Update the current player's cards and score
@@ -900,9 +904,6 @@ function startUnoCardsAnimation() {
 }
 */
 
-
-
-
 //Start the Uno cards animation at the end of the game 
 //It displays 10 cards from an array of cards as the endgame
 function startUnoCardsAnimation() {
@@ -923,58 +924,19 @@ function startUnoCardsAnimation() {
     }, 5000);
 }
 
-// Animation displays "UNO!!"
-function unoPopUp() {
-    if (document.getElementById("uno-popup"))
-        return;
-    const unoPopup = document.createElement("div");
-    unoPopup.id = "uno-popup";
-    unoPopup.classList.add("popup-animation");
-    const unoImage = document.createElement("img");
-    unoImage.src = "imgs/uno_animation.png";
-    unoImage.alt = "UNO Animation";
-    unoImage.classList.add("popup-animation-image");
-    unoPopup.appendChild(unoImage);
-    document.body.appendChild(unoPopup);
+//Display a pop-up message to the user 
+function showPopupMessage(message) {
+    const popup = document.getElementById("game-popup");
+    const popupMessage = document.getElementById("popup-message");
+
+    //Set the message
+    popupMessage.textContent = message;
+
+    //Show the popup
+    popup.classList.remove("d-none");
+
+    //Hide the popup after 3 seconds
     setTimeout(() => {
-        unoPopup.remove();
-    }, 500);
+        popup.classList.add("d-none");
+    }, 3000);
 }
-
-// Animation displays  "+2"
-function drawTwoPopUp() {
-
-    if (document.getElementById("draw-two-popup"))
-        return;
-    const drawTwoPopup = document.createElement("div");
-    drawTwoPopup.id = "draw-two-popup";
-    drawTwoPopup.classList.add("popup-animation");
-    const drawTwoImage = document.createElement("img");
-    drawTwoImage.src = "imgs/2_animation.png";
-    drawTwoImage.alt = "Draw Two Animation";
-    drawTwoImage.classList.add("popup-animation-image");
-    drawTwoPopup.appendChild(drawTwoImage);
-    document.body.appendChild(drawTwoPopup);
-    setTimeout(() => {
-        drawTwoPopup.remove();
-    }, 500);
-}
-
-// Animation displays  "+4"
-function drawFourPopUp() {
-    if (document.getElementById("draw-four-popup"))
-        return;
-    const drawFourPopup = document.createElement("div");
-    drawFourPopup.id = "draw-four-popup";
-    drawFourPopup.classList.add("popup-animation");
-    const drawFourImage = document.createElement("img");
-    drawFourImage.src = "imgs/4_animation.png";
-    drawFourImage.alt = "Draw Four Animation";
-    drawFourImage.classList.add("popup-animation-image");
-    drawFourPopup.appendChild(drawFourImage);
-    document.body.appendChild(drawFourPopup);
-    setTimeout(() => {
-        drawFourPopup.remove();
-    }, 500);
-}
-

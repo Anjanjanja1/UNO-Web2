@@ -525,6 +525,47 @@ h1 {
   }
 }
 
+/* Pop up message for special cards */
+.game-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(45deg, #ff9800, #f44336); 
+  color: #ffffff; 
+  padding: 10px 40px; 
+  border-radius: 20px; 
+  text-align: center;
+  font-size: 2rem; 
+  font-weight: bold; 
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1050; 
+  animation: popup-slide-fade 3s ease forwards;
+}
+
+.d-none {
+  display: none;
+}
+
+@keyframes popup-slide-fade {
+  0% {
+      opacity: 0;
+      transform: translate(-50%, -60%);
+  }
+  20% {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+  }
+  80% {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+  }
+  100% {
+      opacity: 0;
+      transform: translate(-50%, -40%);
+  }
+}
+
 #uno-cards {
   overflow: hidden;
   position: absolute;
