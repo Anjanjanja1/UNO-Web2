@@ -4,13 +4,13 @@
 /* Base Styles */
 body {
   font-family: 'Baloo 2', sans-serif;
-  display: flex; 
+  display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 h1 {
-  color: #333; 
+  color: #333;
   margin-top: 20px;
 }
 
@@ -43,11 +43,13 @@ h1 {
 
 .player-section .active {
   margin-bottom: 20px;
-  border-radius: 8px; 
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), /* Soft glow */
-              0 0 25px rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6),
+    /* Soft glow */
+    0 0 25px rgba(255, 255, 255, 0.4);
   padding: 10px;
-  background-color: #fffbbe; /* Highlight active player */
+  background-color: #fffbbe;
+  /* Highlight active player */
 }
 
 .player-cards-container {
@@ -70,7 +72,8 @@ h1 {
 }
 
 /* Card Styles */
-.active-card, .inactive-card {
+.active-card,
+.inactive-card {
   width: 60px;
   margin: 5px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
@@ -92,7 +95,8 @@ h1 {
   margin-top: 20px;
 }
 
-#top-card-section, #draw-pile-section {
+#top-card-section,
+#draw-pile-section {
   margin-top: 20px;
   display: flex;
   flex-direction: column;
@@ -128,12 +132,14 @@ h1 {
 
 /* Played Card Animation */
 .played-card {
-  position: absolute; /* Allow card to move */
+  position: absolute;
+  /* Allow card to move */
   animation: moveToTopCardStack 0.6s ease-out forwards;
 }
 
 .wrong-card {
-  animation: shake 0.5s ease-in-out; /* Shake animation for invalid moves */
+  animation: shake 0.5s ease-in-out;
+  /* Shake animation for invalid moves */
 }
 
 /* New Card Animation */
@@ -142,7 +148,8 @@ h1 {
   margin: 5px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
-  position: absolute; /* Allow card to move */
+  position: absolute;
+  /* Allow card to move */
   top: 0;
   left: 0;
   /* animation properties */
@@ -209,8 +216,8 @@ h1 {
 
 
 .modal-content {
-  background-color: #1d0c06; 
-  color: #ffffff; 
+  background-color: #1d0c06;
+  color: #ffffff;
   border-radius: 1rem;
   padding: auto;
 }
@@ -238,7 +245,7 @@ h1 {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 3px solid rgba(0, 0, 0, 0.2);
   border-radius: 1rem;
-  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.2); 
+  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -262,12 +269,12 @@ h1 {
 }
 
 .help-section p {
-  color: #ffffff; 
+  color: #ffffff;
   border-radius: 1rem;
   margin-bottom: 0.75rem;
   padding: 1rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); 
-  line-height: 1.6; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  line-height: 1.6;
 }
 
 .help-section ul {
@@ -279,25 +286,27 @@ h1 {
 }
 
 .help-section ul li {
-  padding: 1rem; 
-  border-radius: 1rem; 
-  margin-bottom: 0.75rem; 
+  padding: 1rem;
+  border-radius: 1rem;
+  margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
-  transition: background-color 0.2s ease, box-shadow 0.2s ease; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
   color: #ffffff;
 }
+
 .help-section p:hover,
 .help-section ul li:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); 
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .help-section ul li strong {
   font-weight: bold;
   color: #ffffff;
 }
-#help-specialList li{
+
+#help-specialList li {
   background: #6a1b9a;
 }
 
@@ -322,28 +331,33 @@ h1 {
 }
 
 #object {
-  background: linear-gradient(145deg, #ff4c4c, #cc0000); color: #ffffff; 
-  grid-area: object; 
+  background: linear-gradient(145deg, #ff4c4c, #cc0000);
+  color: #ffffff;
+  grid-area: object;
 }
 
 #setup {
-  background: linear-gradient(145deg, #4caf50, #388e3c); color: #ffffff; 
-  grid-area: setup; 
+  background: linear-gradient(145deg, #4caf50, #388e3c);
+  color: #ffffff;
+  grid-area: setup;
 }
 
 #play {
-  background: linear-gradient(145deg, #ffca28, #fbc02d); color: #ffffff; 
-  grid-area: play; 
+  background: linear-gradient(145deg, #ffca28, #fbc02d);
+  color: #ffffff;
+  grid-area: play;
 }
 
 #cards {
-  background: linear-gradient(145deg, #1e88e5, #1565c0); color: #ffffff; 
-  grid-area: cards; 
+  background: linear-gradient(145deg, #1e88e5, #1565c0);
+  color: #ffffff;
+  grid-area: cards;
 }
 
 #scoring {
-  background: linear-gradient(145deg, #8e24aa, #6a1b9a); color: #ffffff;
-  grid-area: scoring; 
+  background: linear-gradient(145deg, #8e24aa, #6a1b9a);
+  color: #ffffff;
+  grid-area: scoring;
 }
 
 .fade-out {
@@ -355,19 +369,30 @@ h1 {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 /* Responsive Grid for Smaller Screens */
 @media (max-width: 768px) {
   .help-container {
-    grid-template-columns: 1fr; /* Single column on small screens */
+    grid-template-columns: 1fr;
+    /* Single column on small screens */
     grid-template-areas:
       "object"
       "setup"
@@ -378,16 +403,18 @@ h1 {
   }
 
   .help-section h6 {
-    font-size: 1.6rem; /* Smaller font size for compact view */
+    font-size: 1.6rem;
+    /* Smaller font size for compact view */
   }
- 
+
   .card-types img {
-    width: 2.5rem; /* Resize images for better fit on smaller screens */
+    width: 2.5rem;
+    /* Resize images for better fit on smaller screens */
   }
 }
 
 /* END GAME  */
-#newRoundButton{
+#newRoundButton {
   background-color: #fa7019;
   border: none;
   font-size: 14px;
@@ -397,7 +424,7 @@ h1 {
 
 #start-game,
 #start-game-new,
-#resetGameButton{
+#resetGameButton {
   background-color: #ff4c4c;
   border: none;
   font-size: 14px;
@@ -411,19 +438,19 @@ h1 {
 
 #winnerName {
   font-size: 3rem;
-  font-weight: bold; 
-  color: #28a745; 
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4); 
+  font-weight: bold;
+  color: #28a745;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
   text-transform: uppercase;
   text-align: center;
   margin-bottom: 15px;
 }
 
 #winnerScore {
-  font-size: 2.5rem; 
-  font-weight: bold; 
-  color: #fa7019; 
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #fa7019;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   text-align: center;
   margin-top: 20px;
 }
@@ -504,7 +531,7 @@ h1 {
   height: 100%;
   width: 100%;
   top: 0;
-  left: 0; 
+  left: 0;
   z-index: 1040;
   pointer-events: none;
 }
@@ -512,7 +539,7 @@ h1 {
 .uno-card {
   position: absolute;
   left: 50%;
-  width: 64px; 
+  width: 64px;
   height: 96px;
   background-size: cover;
   background-repeat: no-repeat;
@@ -523,19 +550,23 @@ h1 {
 /* UNO Card Animation */
 @keyframes uno-card-fall {
   0% {
-      transform: rotateZ(15deg) rotateY(0deg) translate(0, 0);
+    transform: rotateZ(15deg) rotateY(0deg) translate(0, 0);
   }
+
   25% {
-      transform: rotateZ(5deg) rotateY(360deg) translate(-5vw, 20vh);
+    transform: rotateZ(5deg) rotateY(360deg) translate(-5vw, 20vh);
   }
+
   50% {
-      transform: rotateZ(15deg) rotateY(720deg) translate(5vw, 60vh);
+    transform: rotateZ(15deg) rotateY(720deg) translate(5vw, 60vh);
   }
+
   75% {
-      transform: rotateZ(5deg) rotateY(1080deg) translate(-10vw, 80vh);
+    transform: rotateZ(5deg) rotateY(1080deg) translate(-10vw, 80vh);
   }
+
   100% {
-      transform: rotateZ(15deg) rotateY(1440deg) translate(10vw, 110vh);
+    transform: rotateZ(15deg) rotateY(1440deg) translate(10vw, 110vh);
   }
 }
 
