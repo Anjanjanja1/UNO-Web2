@@ -650,7 +650,7 @@ async function updatePlayerCardsAndScore(playerName) {
             let cardsRemaining = globalResult[playerIndex].Cards.length;
             if (cardsRemaining === 1) {
                 console.log(`${playerName} has only one card left!`); //DEBUG
-                alert(`${playerName} has UNO!`); //TODO: CALL UNO FUNCTION?
+                unoPopUp();
             } 
             //End the game if the player has no cards left
             else if (cardsRemaining === 0) {
@@ -721,7 +721,7 @@ async function drawCard() {
         //Parse the response from the server
         const result = await response.json();
         console.log('Karte wurde gezogen:', result); //DEBUG
-
+        drawTwoPopUp();
         console.log('Karte wurde gezogen:', drawCard); //DEBUG
         addCardToDeckAnimation(result); //Trigger an animation to add the drawn card to the player's deck
         await updatePlayerCardsAndScore(currentPlayer);  //Update the current player's cards and score
@@ -861,7 +861,7 @@ function calculateCardPoints(cards) {
     //Return the card's value or 0 if it's not found
     return cardValues[cards.Text] || 0;
 }
-
+/*
 //Start the Uno cards animation at the end of the game
 function startUnoCardsAnimation() {
     let myElem = document.body; //Use body for global animation overlay
@@ -898,3 +898,83 @@ function startUnoCardsAnimation() {
         console.log("UNO-Karten Animation gestoppt.");
     }, 15000);
 }
+*/
+
+
+
+
+//Start the Uno cards animation at the end of the game 
+//It displays 10 cards from an array of cards as the endgame
+function startUnoCardsAnimation() {
+    let myElem = document.body;
+    const cardImages = ["imgs/Cards/back0.png", "imgs/Cards/Blue6.png", "imgs/Cards/Black14.png", "imgs/Cards/Yellow0.png", "imgs/Cards/Green6.png", "imgs/Cards/Red5.png", "imgs/Cards/back0.png", "imgs/Cards/back0.png"];
+    const divCards = document.createElement("div");
+    divCards.id = "uno-cards";
+    myElem.appendChild(divCards);
+    for (let i = 0; i < 10; i++) {
+        const divElem = document.createElement("div");
+        divElem.classList.add("uno-card");
+        const randomImage = cardImages[Math.floor(Math.random() * cardImages.length)];
+        divElem.style.backgroundImage = `url('${randomImage}')`;
+        divCards.appendChild(divElem);
+    }
+    setTimeout(() => {
+        divCards.remove();
+    }, 5000);
+}
+
+// Animation displays "UNO!!"
+function unoPopUp() {
+    if (document.getElementById("uno-popup"))
+        return;
+    const unoPopup = document.createElement("div");
+    unoPopup.id = "uno-popup";
+    unoPopup.classList.add("popup-animation");
+    const unoImage = document.createElement("img");
+    unoImage.src = "imgs/uno_animation.png";
+    unoImage.alt = "UNO Animation";
+    unoImage.classList.add("popup-animation-image");
+    unoPopup.appendChild(unoImage);
+    document.body.appendChild(unoPopup);
+    setTimeout(() => {
+        unoPopup.remove();
+    }, 500);
+}
+
+// Animation displays  "+2"
+function drawTwoPopUp() {
+
+    if (document.getElementById("draw-two-popup"))
+        return;
+    const drawTwoPopup = document.createElement("div");
+    drawTwoPopup.id = "draw-two-popup";
+    drawTwoPopup.classList.add("popup-animation");
+    const drawTwoImage = document.createElement("img");
+    drawTwoImage.src = "imgs/2_animation.png";
+    drawTwoImage.alt = "Draw Two Animation";
+    drawTwoImage.classList.add("popup-animation-image");
+    drawTwoPopup.appendChild(drawTwoImage);
+    document.body.appendChild(drawTwoPopup);
+    setTimeout(() => {
+        drawTwoPopup.remove();
+    }, 500);
+}
+
+// Animation displays  "+4"
+function drawFourPopUp() {
+    if (document.getElementById("draw-four-popup"))
+        return;
+    const drawFourPopup = document.createElement("div");
+    drawFourPopup.id = "draw-four-popup";
+    drawFourPopup.classList.add("popup-animation");
+    const drawFourImage = document.createElement("img");
+    drawFourImage.src = "imgs/4_animation.png";
+    drawFourImage.alt = "Draw Four Animation";
+    drawFourImage.classList.add("popup-animation-image");
+    drawFourPopup.appendChild(drawFourImage);
+    document.body.appendChild(drawFourPopup);
+    setTimeout(() => {
+        drawFourPopup.remove();
+    }, 500);
+}
+
