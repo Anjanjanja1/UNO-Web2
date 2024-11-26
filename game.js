@@ -865,44 +865,6 @@ function calculateCardPoints(cards) {
     //Return the card's value or 0 if it's not found
     return cardValues[cards.Text] || 0;
 }
-/*
-//Start the Uno cards animation at the end of the game
-function startUnoCardsAnimation() {
-    let myElem = document.body; //Use body for global animation overlay
-
-    //Array of card image paths
-    const cardImages = [
-        "imgs/Cards/back0.png",
-        "imgs/Cards/Blue6.png",
-        "imgs/Cards/Black14.png",
-        "imgs/Cards/Yellow0.png",
-        "imgs/Cards/Green6.png",
-        "imgs/Cards/Red5.png",
-        "imgs/Cards/back0.png",
-        "imgs/Cards/back0.png"
-    ];
-
-    //Create a container for the animated cards
-    const divCards = document.createElement("div");
-    divCards.id = "uno-cards";
-    myElem.appendChild(divCards);
-
-    //Generate 10 animated card elements with random images
-    for (let i = 0; i < 10; i++) {
-        const divElem = document.createElement("div");
-        divElem.classList.add("uno-card");
-
-        const randomImage = cardImages[Math.floor(Math.random() * cardImages.length)];
-        divElem.style.backgroundImage = `url('${randomImage}')`;
-        divCards.appendChild(divElem);
-    }
-    //Remove the animation after 15 seconds
-    setTimeout(() => {
-        divCards.remove();
-        console.log("UNO-Karten Animation gestoppt.");
-    }, 15000);
-}
-*/
 
 //Start the Uno cards animation at the end of the game 
 //It displays 10 cards from an array of cards as the endgame
